@@ -1,50 +1,56 @@
-# React + TypeScript + Vite
-
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
-
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
-
-- Configure the top-level `parserOptions` property like this:
-
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
-
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
-
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
-
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
-```
+social-sphare/
+├── src/
+│   ├── assets/                      # Static assets (images, icons, etc.)
+│   │   └── ...
+│   ├── components/                  # Reusable UI components
+│   │   ├── Auth/
+│   │   │   ├── GoogleLogin.js       # Google login component
+│   │   │   ├── LoginForm.js         # Email/password login form
+│   │   │   ├── SignupForm.js        # Registration form
+│   │   │   └── ...
+│   │   ├── Feed/
+│   │   │   ├── Post.js              # Individual post component
+│   │   │   ├── PostForm.js          # Form to create new posts
+│   │   │   ├── Feed.js              # Social media feed (infinite scroll)
+│   │   │   ├── PostCard.js          # Post card UI for feed
+│   │   │   └── ...
+│   │   ├── Profile/
+│   │   │   ├── UserProfile.js       # User profile page
+│   │   │   ├── EditProfileForm.js   # Edit profile form
+│   │   │   └── ...
+│   │   ├── Shared/
+│   │   │   ├── Header.js            # Navbar/Header component
+│   │   │   ├── Footer.js            # Footer component
+│   │   │   └── ...
+│   │   └── ...
+│   ├── contexts/                    # React context for managing global state
+│   │   ├── AuthContext.js           # Auth state context (user, auth status)
+│   │   ├── PostContext.js           # Post data context (for feed, pagination)
+│   │   └── ...
+│   ├── firebase/                    # Firebase configuration and helper functions
+│   │   ├── firebase.js              # Firebase initialization (Auth, Firestore, Storage)
+│   │   ├── auth.js                  # Firebase authentication helpers (login, signup)
+│   │   ├── firestore.js             # Firestore helper functions (get posts, create post)
+│   │   ├── storage.js               # Firebase Storage helpers (upload images/videos)
+│   │   └── ...
+│   ├── pages/                       # Main pages of the application
+│   │   ├── HomePage.js              # Home page with social media feed
+│   │   ├── ProfilePage.js           # User profile page
+│   │   ├── LoginPage.js             # Login page
+│   │   ├── SignupPage.js            # Signup page
+│   │   └── ...
+│   ├── styles/                      # Global styles (CSS, SCSS, or Tailwind)
+│   │   ├── App.css                 # Main app styles
+│   │   ├── tailwind.config.js       # Tailwind CSS configuration (if used)
+│   │   └── ...
+│   ├── utils/                       # Utility functions
+│   │   ├── formatDate.js            # Format date for posts/timestamps
+│   │   ├── validateEmail.js         # Email validation for forms
+│   │   └── ...
+│   ├── App.js                       # Main React app component
+│   ├── index.js                     # React entry point
+│   └── ...
+├── .gitignore                       # Git ignore file
+├── package.json                     # Project dependencies and scripts
+├── README.md                        # Project documentation
+└── ...

@@ -1,6 +1,5 @@
-import React from "react";
-import OAuth from "./Auth/GoogleLogin";
-import LogInImg from "../assets/loginUser.jpg";
+import { GoogleLogin } from "./GoogleLogin";
+import LogInImg from "../../assets/loginUser.jpg";
 
 const LogIn = () => {
   return (
@@ -23,7 +22,7 @@ const LogIn = () => {
         </div>
       </div>
       <div className="h-[320px] w-full absolute bottom-0  rounded-t-[100px] bg-white  flex justify-center items-center">
-        <OAuth />
+        <GoogleLogin />
       </div>
     </div>
   );

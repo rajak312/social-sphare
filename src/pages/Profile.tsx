@@ -10,7 +10,7 @@ import withAuth from "../hoc/withAuth";
 import { IoMdAdd } from "react-icons/io";
 
 const Profile: React.FC = () => {
-  const { profilePictureUrl, displayName, bio } = useSelector(
+  const { profilePictureUrl, displayName, bio, backgroundImage } = useSelector(
     (state: RootState) => state.user
   );
   const navigate = useNavigate();
@@ -23,12 +23,13 @@ const Profile: React.FC = () => {
     <div className="w-full h-full ">
       <NavLink
         to="/post"
-        className="flex absolute justify-center items-center bottom-10 ml-72 h-10 w-10 rounded-full bg-black text-white">
+        className="flex absolute justify-center items-center bottom-10 ml-72 h-10 w-10 rounded-full bg-black text-white"
+      >
         <IoMdAdd className="text-2xl" />
       </NavLink>
       <div className="w-full  relative">
         <img
-          src={BgImg}
+          src={backgroundImage || BgImg}
           alt={BgImg}
           className="w-full  object-cover h-[150px] rounded-b-3xl overflow-hidden "
         />
@@ -38,7 +39,8 @@ const Profile: React.FC = () => {
         </div>
         <NavLink
           to="/profile/edit"
-          className="absolute right-10 rounded-full  -bottom-10 border-gray-400 border w-[200px] flex justify-center items-center font-medium">
+          className="absolute right-10 rounded-full  -bottom-10 border-gray-400 border w-[200px] flex justify-center items-center font-medium"
+        >
           Edit Profile
         </NavLink>
         <div className="absolute -bottom-10 left-5">

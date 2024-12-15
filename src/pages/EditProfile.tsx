@@ -22,6 +22,10 @@ const EditProfile: React.FC = () => {
   const handleUploadBackground = async (file: File) => {
     try {
       const background_image = await uploadFile(file);
+      setUser((prev) => ({
+        ...prev,
+        backgroundImage: background_image,
+      }));
       const { error } = await supabase
         .from("users")
         .update({
@@ -83,13 +87,11 @@ const EditProfile: React.FC = () => {
     setUser({ ...user, bio: e.target.value });
   };
 
-  function renderEditBackGround() {}
-
   return (
     <div className="w-full h-full bg-white">
       <div className="w-full  relative">
         <img
-          src={BgImg}
+          src={user.backgroundImage || BgImg}
           alt={BgImg}
           className="w-full  object-cover h-[150px] rounded-b-3xl overflow-hidden "
         />

@@ -15,16 +15,17 @@ function Home() {
   );
   const [posts, setPosts] = useState<PostWithRelations[]>([]);
 
-  useEffect(() => {
-    (async () => {
-      const { data, error } = await supabase.from("posts").select(`
+  async function fetchPosts() {
+    const { data, error } = await supabase.from("posts").select(`
     *,
     post_images(*),
     likes(*)
   `);
-      setPosts(data as PostWithRelations[]);
-      console.log("data", data);
-    })();
+    setPosts(data as PostWithRelations[]);
+  }
+
+  useEffect(() => {
+    fetchPosts();
   }, []);
 
   return (
@@ -49,7 +50,7 @@ function Home() {
         <h1 className="font-bold text-2xl">Feeds</h1>
         <div className="space-y-4">
           {posts.map((post, idx) => (
-            <FeedCard key={idx} post={post} />
+            <FeedCard key={idx} post={post} refetch={fetchPosts} />
           ))}
         </div>
       </div>

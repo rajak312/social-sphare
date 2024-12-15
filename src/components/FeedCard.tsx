@@ -10,9 +10,10 @@ import { getUser } from "../utils";
 
 export interface FeedCardProps {
   post: PostWithRelations;
+  refetch?: () => void;
 }
 
-const FeedCard = ({ post }: FeedCardProps) => {
+const FeedCard = ({ post, refetch }: FeedCardProps) => {
   const [postUser, setPostUser] = useState<User | undefined>();
   const { displayName, profilePictureUrl, id } = useSelector(
     (state: RootState) => state.user
@@ -58,8 +59,6 @@ const FeedCard = ({ post }: FeedCardProps) => {
           console.error("Error removing like:", deleteError.message);
           throw deleteError;
         }
-
-        return { liked: false };
       } else {
         const { data: newLike, error: insertError } = await supabase
           .from("likes")
@@ -69,9 +68,8 @@ const FeedCard = ({ post }: FeedCardProps) => {
           console.error("Error adding like:", insertError.message);
           throw insertError;
         }
-
-        return { liked: true, like: newLike };
       }
+      refetch?.();
     } catch (error) {
       console.error("Unexpected error in toggleLike:", error);
       throw error;

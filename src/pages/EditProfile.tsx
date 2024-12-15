@@ -72,8 +72,7 @@ const EditProfile: React.FC = () => {
         <div className="w-full">
           <label
             htmlFor="name"
-            className="block text-sm font-medium text-gray-700 mb-1"
-          >
+            className="block text-sm font-medium text-gray-700 mb-1">
             Name
           </label>
           <input
@@ -89,8 +88,7 @@ const EditProfile: React.FC = () => {
         <div className="w-full">
           <label
             htmlFor="bio"
-            className="block text-sm font-medium text-gray-700 mb-1"
-          >
+            className="block text-sm font-medium text-gray-700 mb-1">
             Bio
           </label>
           <textarea
@@ -106,8 +104,7 @@ const EditProfile: React.FC = () => {
       <div className="p-4 border-t bg-white">
         <button
           onClick={handleSave}
-          className="w-full bg-black text-white py-2 rounded-md hover:bg-gray-900"
-        >
+          className="w-full bg-black text-white py-2 rounded-md hover:bg-gray-900">
           SAVE
         </button>
       </div>

@@ -1,18 +1,16 @@
-import AddUser from "./components/AddUser";
-import LogIn from "./components/Auth/LogIn";
-import { FileUpload } from "./components/FileUpload";
+// src/App.tsx
+import React from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import HomeScreen from "./pages/Home";
 
-const App = () => {
-  console.log("ENVIRONMENT: ", import.meta.env.ENV);
+function App() {
   return (
-    <div className="h-screen w-full flex justify-center items-center">
-      <div className="w-[392px] h-full border bg-red-50">
-        {/* <LogIn /> */}
-        <AddUser />
-        {/* <FileUpload /> */}
-      </div>
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<HomeScreen />} />
+      </Routes>
+    </Router>
   );
-};
+}
 
 export default App;

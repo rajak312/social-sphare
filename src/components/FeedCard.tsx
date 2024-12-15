@@ -3,6 +3,7 @@ import { useSelector } from "react-redux";
 import { FaHeart } from "react-icons/fa";
 import { RootState } from "../store";
 import { RiSendPlaneFill } from "react-icons/ri";
+import SharePopup from "./SharePopup";
 
 const FeedCard = () => {
   const { displayName, profilePictureUrl } = useSelector(
@@ -11,11 +12,22 @@ const FeedCard = () => {
 
   const [likes, setLikes] = useState(69);
   const [isLiked, setIsLiked] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleLike = () => {
     setLikes((prevLikes) => prevLikes + (isLiked ? -1 : 1));
     setIsLiked((prevIsLiked) => !prevIsLiked);
   };
+
+  const handleShareClick = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
+  const url = window.location.href;
 
   return (
     <div className="w-full h-[341px] bg-purple-50 shadow hover:shadow-xl border flex flex-col justify-between rounded-lg p-4 transition-all duration-300">
@@ -43,16 +55,20 @@ const FeedCard = () => {
           className={`flex items-center gap-2 font-medium ${
             isLiked ? "text-pink-700" : "text-gray-500"
           }`}>
-          {isLiked ? <FaHeart /> : <FaHeart />}
+          <FaHeart />
           {likes}
         </button>
         <div>
-          <button className="font-semibold flex items-center gap-2 bg-gray-200 rounded-full px-4 py-1">
+          <button
+            onClick={handleShareClick}
+            className="font-semibold flex items-center gap-2 bg-gray-200 rounded-full px-4 py-1">
             <RiSendPlaneFill className="text-lg" />
             Share
           </button>
         </div>
       </div>
+
+      {isModalOpen && <SharePopup url={url} onClose={handleCloseModal} />}
     </div>
   );
 };

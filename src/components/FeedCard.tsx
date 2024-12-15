@@ -15,10 +15,8 @@ const FeedCard = ({ post }: FeedCardProps) => {
   const { displayName, profilePictureUrl, id } = useSelector(
     (state: RootState) => state.user
   );
-
-  const [likes, setLikes] = useState(69);
-  const [isLiked, setIsLiked] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const isLiked = !!post.likes.find((user) => user.id === id);
 
   const toggleLike = async () => {
     try {
@@ -28,6 +26,8 @@ const FeedCard = ({ post }: FeedCardProps) => {
         .eq("post_id", post.id)
         .eq("user_id", id)
         .single();
+
+      console.log("existing like", existingLike, fetchError);
 
       if (fetchError) {
         if (fetchError.code === "PGRST116") {
@@ -55,7 +55,6 @@ const FeedCard = ({ post }: FeedCardProps) => {
           .from("likes")
           .insert([{ post_id: post.id, user_id: id }])
           .single();
-
         if (insertError) {
           console.error("Error adding like:", insertError.message);
           throw insertError;

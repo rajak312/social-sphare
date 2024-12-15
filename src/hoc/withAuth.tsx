@@ -122,11 +122,13 @@ function withAuth<T extends object>(WrappedComponent: React.ComponentType<T>) {
     };
 
     if (checkingAuth) return null;
-    if (!userEmail && showLoginModal) {
-      return <LogIn onClose={() => navigate("/")} />;
-    }
 
-    return userEmail ? <WrappedComponent {...(props as T)} /> : null;
+    return (
+      <div>
+        <WrappedComponent {...(props as T)} />
+        {!userEmail && showLoginModal && <LogIn />}
+      </div>
+    );
   };
 
   return WithAuth;

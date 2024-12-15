@@ -28,7 +28,7 @@ const EditProfile: React.FC = () => {
       const { error } = await supabase
         .from("users")
         .update({
-          displayName: user.displayName,
+          display_name: user.displayName,
           bio: user.bio,
           profile_picture_url: profilePictureUrl,
         })

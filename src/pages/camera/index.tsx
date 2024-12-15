@@ -66,12 +66,10 @@ const Camera: React.FC = () => {
 
   return (
     <div className="flex flex-col items-center gap-4 border p-4 rounded-md max-w-sm mx-auto mt-10">
-     
       {!isCameraOpen && !capturedImage && (
         <button
           className="border border-gray-300 rounded-full px-4 py-2 hover:bg-gray-100"
-          onClick={openCamera}
-        >
+          onClick={openCamera}>
           Open Camera
         </button>
       )}
@@ -92,15 +90,13 @@ const Camera: React.FC = () => {
           <div className="flex justify-around mt-2">
             <button
               className="border border-gray-300 rounded-full px-4 py-2 hover:bg-gray-100"
-              onClick={captureImage}
-            >
+              onClick={captureImage}>
               Capture
             </button>
 
             <button
               className="border border-gray-300 rounded-full px-4 py-2 hover:bg-gray-100"
-              onClick={closeCamera}
-            >
+              onClick={closeCamera}>
               Close Camera
             </button>
           </div>
@@ -130,8 +126,7 @@ const Camera: React.FC = () => {
           <div className="flex justify-center mt-4">
             <button
               className="border border-gray-300 rounded-full px-4 py-2 hover:bg-gray-100"
-              onClick={closeCamera}
-            >
+              onClick={closeCamera}>
               Retake / Close
             </button>
           </div>

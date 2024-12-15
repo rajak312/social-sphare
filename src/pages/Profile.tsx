@@ -4,11 +4,10 @@ import { withDefaultLayout } from "../hoc/withDefaulLayout";
 import { RootState } from "../store";
 import { useSelector } from "react-redux";
 import { User, updateUser } from "../store/userSlice";
-import { supabase } from "../supabase";
-import { uploadFile } from "../utils";
 import BgImg from "../assets/loginUser.jpg";
 import { NavLink } from "react-router-dom";
 import MyPostCard from "../components/MyPostCard";
+import { IoMdAdd } from "react-icons/io";
 
 const Profile: React.FC = () => {
   const userStore = useSelector((state: RootState) => state.user);
@@ -18,43 +17,17 @@ const Profile: React.FC = () => {
     ...userStore,
   });
 
-  const handleSave = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    let profilePictureUrl = user.profilePictureUrl;
-    if (file) {
-      profilePictureUrl = await uploadFile(file);
-      setUser((prev) => ({
-        ...prev,
-        profilePictureUrl,
-      }));
-    }
-    try {
-      const { error } = await supabase
-        .from("users")
-        .update({
-          display_name: user.displayName,
-          bio: user.bio,
-          profile_picture_url: profilePictureUrl,
-        })
-        .eq("id", user.id);
-
-      if (error) {
-        console.error("Error updating user:", error);
-      } else {
-        console.log("User updated successfully");
-        store.dispatch(updateUser(user));
-      }
-    } catch (err) {
-      console.error("Error in handleSave:", err);
-    }
-  };
-
   const handleBack = () => {
     console.log("Back button clicked");
   };
 
   return (
     <div className="w-full h-full bg-white">
+      <NavLink
+        to="/post"
+        className="flex absolute justify-center items-center bottom-10 ml-72 h-10 w-10 rounded-full bg-black text-white">
+        <IoMdAdd className="text-2xl" />
+      </NavLink>
       <div className="w-full  relative">
         <img
           src={BgImg}

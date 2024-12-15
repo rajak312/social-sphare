@@ -1,63 +1,23 @@
-import React, { FormEvent, useState } from "react";
+import React, { useState } from "react";
 import { BackButton } from "../components/BackButton";
 import { withDefaultLayout } from "../hoc/withDefaulLayout";
-import { ProfilePicture } from "../components/ProfilePicture";
-import { RootState, store } from "../store";
+import { RootState } from "../store";
 import { useSelector } from "react-redux";
-import { User, updateUser } from "../store/userSlice";
-import { supabase } from "../supabase";
-import { uploadImage } from "../utils";
+import { User } from "../store/userSlice";
 import BgImg from "../assets/loginUser.jpg";
-import { MdEdit } from "react-icons/md";
+import { NavLink } from "react-router-dom";
+import MyPostCard from "../components/MyPostCard";
 
-const EditProfile: React.FC = () => {
+const Profile: React.FC = () => {
   const userStore = useSelector((state: RootState) => state.user);
+
   const [file, setFile] = useState<File | null>(null);
   const [user, setUser] = useState<User>({
     ...userStore,
   });
 
-  const handleSave = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    let profilePictureUrl = user.profilePictureUrl;
-    if (file) {
-      profilePictureUrl = await uploadImage(file);
-      setUser((prev) => ({
-        ...prev,
-        profilePictureUrl,
-      }));
-    }
-    try {
-      const { error } = await supabase
-        .from("users")
-        .update({
-          display_name: user.displayName,
-          bio: user.bio,
-          profile_picture_url: profilePictureUrl,
-        })
-        .eq("id", user.id);
-
-      if (error) {
-        console.error("Error updating user:", error);
-      } else {
-        console.log("User updated successfully");
-        store.dispatch(updateUser(user));
-      }
-    } catch (err) {
-      console.error("Error in handleSave:", err);
-    }
-  };
-
   const handleBack = () => {
     console.log("Back button clicked");
-  };
-
-  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setUser({ ...user, displayName: e.target.value });
-  };
-
-  const handleBioChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setUser({ ...user, bio: e.target.value });
   };
 
   return (
@@ -68,57 +28,40 @@ const EditProfile: React.FC = () => {
           alt={BgImg}
           className="w-full  object-cover h-[150px] rounded-b-3xl overflow-hidden "
         />
-        <div className="bg-[#f4f4f4] w-7 h-7 rounded-full absolute bottom-3 right-5 flex items-center justify-center ">
-          <MdEdit className="text-gray-500" />
-        </div>
+
         <div className=" absolute top-3 left-5 flex items-center justify-center text-[#f4f4f4] font-bold gap-2 ">
           <BackButton onBack={handleBack} />
         </div>
+        <NavLink
+          to="/profile/edit"
+          className="absolute right-10 rounded-full  -bottom-10 border-gray-400 border w-[200px] flex justify-center items-center font-medium">
+          {" "}
+          Edit Profile
+        </NavLink>
         <div className="absolute -bottom-10 left-5">
-          <div className="relative">
-            <ProfilePicture
-              url={user.profilePictureUrl || ""}
-              onEdit={setFile}
-            />
+          <img
+            src={user.profilePictureUrl ?? undefined}
+            alt=""
+            width={50}
+            height={50}
+            className="w-24 h-24 object-cover rounded-full"
+          />
+        </div>
+      </div>
+      <div className="mt-10 p-4 flex flex-col gap-6">
+        <div>
+          <h1 className="font-medium text-2xl">{user.displayName}</h1>
+          <p>{user.bio}</p>
+        </div>
+        <div className="space-y-4">
+          <h1 className="font-medium text-xl">My Posts</h1>
+          <div className="grid grid-cols-2 gap-4">
+            <MyPostCard />
           </div>
         </div>
       </div>
-
-      <form
-        onSubmit={handleSave}
-        className="h-[75%] flex flex-col justify-between p-6"
-      >
-        <div className="my-10 space-y-4">
-          <div className="w-full flex gap-2 flex-col ">
-            <label htmlFor="name">Name</label>
-            <input
-              id="name"
-              type="text"
-              value={user.displayName || ""}
-              onChange={handleNameChange}
-              className="bg-transparent border-b-[1px] focus:outline-none"
-            />
-          </div>
-          <div className="w-full flex gap-2 flex-col ">
-            <label htmlFor="bio">Bio</label>
-            <textarea
-              id="bio"
-              value={user.bio || ""}
-              onChange={handleBioChange}
-              className="bg-transparent border-b-[1px] overflow-hidden focus:outline-none"
-            />
-          </div>
-        </div>
-
-        <button
-          type="submit"
-          className="bg-black text-white p-2 rounded-full font-semibold"
-        >
-          SAVE
-        </button>
-      </form>
     </div>
   );
 };
 
-export default withDefaultLayout(EditProfile);
+export default withDefaultLayout(Profile);

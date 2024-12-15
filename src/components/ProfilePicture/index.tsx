@@ -2,11 +2,16 @@ import { useRef, useState } from "react";
 import { EditButton } from "../EditButton";
 
 export interface ProfilePictureProps {
-  url: string;
+  url?: string;
+  withoutPreview?: boolean;
   onEdit?: (file: File) => void;
 }
 
-export function ProfilePicture({ url, onEdit }: ProfilePictureProps) {
+export function ProfilePicture({
+  url,
+  onEdit,
+  withoutPreview,
+}: ProfilePictureProps) {
   const [file, setFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -22,20 +27,32 @@ export function ProfilePicture({ url, onEdit }: ProfilePictureProps) {
     fileInputRef.current?.click();
   };
 
+  function renderEditButton() {
+    return (
+      <>
+        <EditButton onAction={handleButtonClick} />
+        <input
+          type="file"
+          accept="image/*"
+          ref={fileInputRef}
+          className="hidden"
+          onChange={handleFileChange}
+        />
+      </>
+    );
+  }
+
+  if (withoutPreview) {
+    return renderEditButton();
+  }
+
   return (
     <div className="relative w-24 h-24">
       <img
         src={file ? URL.createObjectURL(file) : url}
         className="w-24 h-24 rounded-full object-cover border border-gray-300"
       />
-      <EditButton onAction={handleButtonClick} />
-      <input
-        type="file"
-        accept="image/*"
-        ref={fileInputRef}
-        className="hidden"
-        onChange={handleFileChange}
-      />
+      {renderEditButton()}
     </div>
   );
 }

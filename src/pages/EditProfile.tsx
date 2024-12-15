@@ -8,15 +8,37 @@ import { User, updateUser } from "../store/userSlice";
 import { supabase } from "../supabase";
 import { uploadFile } from "../utils";
 import BgImg from "../assets/loginUser.jpg";
-import { MdEdit } from "react-icons/md";
 import withAuth from "../hoc/withAuth";
+import { useNavigate } from "react-router-dom";
 
 const EditProfile: React.FC = () => {
   const userStore = useSelector((state: RootState) => state.user);
+  const navigate = useNavigate();
   const [file, setFile] = useState<File | null>(null);
   const [user, setUser] = useState<User>({
     ...userStore,
   });
+
+  const handleUploadBackground = async (file: File) => {
+    try {
+      const background_image = await uploadFile(file);
+      const { error } = await supabase
+        .from("users")
+        .update({
+          background_image,
+        })
+        .eq("id", user.id);
+
+      if (error) {
+        console.error("Error updating user:", error);
+      } else {
+        console.log("User updated successfully");
+        store.dispatch(updateUser(user));
+      }
+    } catch (err) {
+      console.error("Error in handleSave:", err);
+    }
+  };
 
   const handleSave = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -50,7 +72,7 @@ const EditProfile: React.FC = () => {
   };
 
   const handleBack = () => {
-    console.log("Back button clicked");
+    navigate("/profile");
   };
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -61,6 +83,8 @@ const EditProfile: React.FC = () => {
     setUser({ ...user, bio: e.target.value });
   };
 
+  function renderEditBackGround() {}
+
   return (
     <div className="w-full h-full bg-white">
       <div className="w-full  relative">
@@ -70,10 +94,10 @@ const EditProfile: React.FC = () => {
           className="w-full  object-cover h-[150px] rounded-b-3xl overflow-hidden "
         />
         <div className="bg-[#f4f4f4] w-7 h-7 rounded-full absolute bottom-3 right-5 flex items-center justify-center ">
-          <MdEdit className="text-gray-500" />
+          <ProfilePicture withoutPreview onEdit={handleUploadBackground} />
         </div>
         <div className=" absolute top-3 left-5 flex items-center justify-center text-[#f4f4f4] font-bold gap-2 ">
-          <BackButton onBack={handleBack} />
+          <BackButton onBack={handleBack} title="Edit Profile" />
         </div>
         <div className="absolute -bottom-10 left-5">
           <div className="relative">

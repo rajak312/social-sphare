@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import { PostWithRelations } from "../utils/types";
 import { NavLink } from "react-router-dom";
 import { IoMdAdd } from "react-icons/io";
+import In from "../components/Auth/In";
 
 function Home() {
   const { displayName, profilePictureUrl } = useSelector(
@@ -29,8 +30,8 @@ function Home() {
   }, []);
 
   return (
-    <div className="p-4 h-full ">
-      <NavLink
+    <div className=" h-full ">
+      {/* <NavLink
         to="/post"
         className="flex absolute justify-center items-center bottom-10 ml-72 h-10 w-10 rounded-full bg-black text-white">
         <IoMdAdd className="text-2xl" />
@@ -53,7 +54,8 @@ function Home() {
             <FeedCard key={idx} post={post} refetch={fetchPosts} />
           ))}
         </div>
-      </div>
+      </div> */}
+      <In />
     </div>
   );
 }

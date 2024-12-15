@@ -18,8 +18,7 @@ export const GoogleLogin = () => {
     <button
       type="button"
       onClick={handleGoogleClick}
-      className="border flex items-center gap-2 bg-gray-900 text-white w-max p-4  rounded-full "
-    >
+      className="border flex items-center gap-2 bg-gray-900 text-white w-max p-4 h-[50px]  rounded-full ">
       <img src={GoogleIcon} alt="google_icon" width={25} height={25} />
       <p className="text-xl">Continue with Google</p>
     </button>

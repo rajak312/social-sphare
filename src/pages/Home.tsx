@@ -28,10 +28,10 @@ function Home() {
   }, []);
 
   return (
-    <div className="p-4 h-full relative">
+    <div className="p-4 h-full ">
       <NavLink
         to="/post"
-        className=" absolute flex justify-center items-center bottom-5 right-5 h-10 w-10 rounded-full bg-black text-white">
+        className=" fixed flex justify-center items-center bottom-10 right-60 h-10 w-10 rounded-full bg-black text-white">
         <IoMdAdd className="text-2xl" />
       </NavLink>
       <div className="h-full w-full flex flex-col gap-6">

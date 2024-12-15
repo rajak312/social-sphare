@@ -8,13 +8,13 @@ type BackButtonProps = {
 
 export const BackButton: React.FC<BackButtonProps> = ({ onBack, title }) => {
   return (
-    <div className="flex items-center p-4 font-bold">
+    <div className="flex items-center font-bold">
       <button
         className="mr-2 text-gray-600 hover:text-gray-800"
         onClick={onBack}>
         <ArrowLeftIcon className="w-5 h-5 font-bold" />
       </button>
-      <h1 className="font-medium text-lg text-gray-900 font-bold">
+      <h1 className="font-medium text-lg text-gray-900 ">
         {title ? title : "Back"}
       </h1>
     </div>

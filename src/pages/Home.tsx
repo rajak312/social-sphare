@@ -30,7 +30,7 @@ function Home() {
   }, []);
 
   return (
-    <div className=" h-full ">
+    <div className=" h-full p-4 ">
       <NavLink
         to="/post"
         className="flex absolute justify-center items-center bottom-10 ml-72 h-10 w-10 rounded-full bg-black text-white">

@@ -6,7 +6,7 @@ import { RootState, store } from "../store";
 import { useSelector } from "react-redux";
 import { User, updateUser } from "../store/userSlice";
 import { supabase } from "../supabase";
-import { uploadImage } from "../utils";
+import { uploadFile } from "../utils";
 
 const EditProfile: React.FC = () => {
   const userStore = useSelector((state: RootState) => state.user);
@@ -18,7 +18,7 @@ const EditProfile: React.FC = () => {
   const handleSave = async () => {
     let profilePictureUrl = user.profilePictureUrl;
     if (file) {
-      profilePictureUrl = await uploadImage(file);
+      profilePictureUrl = await uploadFile(file);
       setUser((prev) => ({
         ...prev,
         profilePictureUrl,

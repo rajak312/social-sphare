@@ -6,7 +6,7 @@ import { RootState, store } from "../store";
 import { useSelector } from "react-redux";
 import { User, updateUser } from "../store/userSlice";
 import { supabase } from "../supabase";
-import { uploadImage } from "../utils";
+import { uploadFile } from "../utils";
 import BgImg from "../assets/loginUser.jpg";
 import { MdEdit } from "react-icons/md";
 
@@ -21,7 +21,7 @@ const EditProfile: React.FC = () => {
     e.preventDefault();
     let profilePictureUrl = user.profilePictureUrl;
     if (file) {
-      profilePictureUrl = await uploadImage(file);
+      profilePictureUrl = await uploadFile(file);
       setUser((prev) => ({
         ...prev,
         profilePictureUrl,

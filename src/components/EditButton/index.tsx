@@ -1,6 +1,7 @@
 export interface EditButtonProps {
   onAction?: () => void;
 }
+import { MdEdit } from "react-icons/md";
 
 export function EditButton({ onAction }: EditButtonProps) {
   return (
@@ -9,20 +10,7 @@ export function EditButton({ onAction }: EditButtonProps) {
                    flex items-center justify-center hover:bg-gray-100"
       aria-label="Edit profile picture"
       onClick={onAction}>
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        className="h-4 w-4 text-gray-600"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-        strokeWidth="2">
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          d="M15.232 5.232l3.536 3.536m-2.036-4.036a2.5 
-       2.5 0 113.536 3.536L9 20.5H4.5V16l12.732-12.732z"
-        />
-      </svg>
+      <MdEdit className="text-gray-500" />
     </button>
   );
 }

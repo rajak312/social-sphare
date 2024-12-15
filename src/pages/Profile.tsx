@@ -17,7 +17,7 @@ const EditProfile: React.FC = () => {
     ...userStore,
   });
 
-  const handleSave = async (e: HTMLFormElement<FormEvent>) => {
+  const handleSave = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     let profilePictureUrl = user.profilePictureUrl;
     if (file) {

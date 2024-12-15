@@ -6,6 +6,7 @@ export interface User {
   displayName: string | null;
   bio: string | null;
   profilePictureUrl: string | null;
+  backgroundImage: string | null;
 }
 
 const initialState: User = {
@@ -14,6 +15,7 @@ const initialState: User = {
   displayName: null,
   bio: null,
   profilePictureUrl: null,
+  backgroundImage: null,
 };
 
 const savedUser = localStorage.getItem("loggedInUser");
@@ -36,6 +38,7 @@ const userSlice = createSlice({
       state.displayName = action.payload.displayName;
       state.bio = action.payload.bio || null;
       state.profilePictureUrl = action.payload.profilePictureUrl || null;
+      state.backgroundImage = action.payload.backgroundImage;
       localStorage.setItem("loggedInUser", JSON.stringify(state));
     },
     updateUser(state, action: PayloadAction<User>) {
@@ -48,6 +51,9 @@ const userSlice = createSlice({
       if (action.payload.profilePictureUrl !== undefined) {
         state.profilePictureUrl = action.payload.profilePictureUrl;
       }
+      if (action.payload.backgroundImage !== undefined) {
+        state.backgroundImage = action.payload.backgroundImage;
+      }
       localStorage.setItem("loggedInUser", JSON.stringify(state));
     },
     logoutUser(state) {
@@ -56,6 +62,7 @@ const userSlice = createSlice({
       state.displayName = null;
       state.bio = null;
       state.profilePictureUrl = null;
+      state.backgroundImage = null;
       localStorage.removeItem("loggedInUser");
     },
   },

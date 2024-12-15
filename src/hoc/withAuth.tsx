@@ -16,6 +16,7 @@ export interface SupabaseUser {
   display_name: string | null;
   bio: string | null;
   profile_picture_url: string | null;
+  background_image: string;
 }
 
 function withAuth<T extends object>(WrappedComponent: React.ComponentType<T>) {
@@ -49,6 +50,7 @@ function withAuth<T extends object>(WrappedComponent: React.ComponentType<T>) {
                     displayName: supabaseUser.display_name,
                     bio: supabaseUser.bio,
                     profilePictureUrl: supabaseUser.profile_picture_url,
+                    backgroundImage: supabaseUser.background_image,
                   })
                 );
                 setShowLoginModal(false);

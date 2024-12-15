@@ -6,6 +6,8 @@ import FeedCard from "../components/FeedCard";
 import { supabase } from "../supabase";
 import { useEffect, useState } from "react";
 import { PostWithRelations } from "../utils/types";
+import { NavLink } from "react-router-dom";
+import { IoMdAdd } from "react-icons/io";
 
 function Home() {
   const { displayName, profilePictureUrl } = useSelector(
@@ -26,9 +28,14 @@ function Home() {
   }, []);
 
   return (
-    <div className="p-4 h-full">
-      <div className="h-full w-full flex flex-col gap-10">
-        <div className="flex items-center gap-2">
+    <div className="p-4 h-full relative">
+      <NavLink
+        to="/post"
+        className=" absolute flex justify-center items-center bottom-5 right-5 h-10 w-10 rounded-full bg-black text-white">
+        <IoMdAdd className="text-2xl" />
+      </NavLink>
+      <div className="h-full w-full flex flex-col gap-6">
+        <NavLink to="/profile" className="flex items-center gap-2">
           <img
             src={profilePictureUrl ?? "fallback-image-url.jpg"}
             alt=""
@@ -38,7 +45,8 @@ function Home() {
             <small>Welcome Back,</small>
             <h1 className="font-semibold text-xl">{displayName}</h1>
           </div>
-        </div>
+        </NavLink>
+        <h1 className="font-bold text-2xl">Feeds</h1>
         <div className="space-y-4">
           {posts.map((post) => (
             <FeedCard post={post} />

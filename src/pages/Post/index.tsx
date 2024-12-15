@@ -17,6 +17,7 @@ const Post: FC = () => {
     null
   );
   const [caption, setCaption] = useState<string>("");
+  const [isLoading, setIsLoading] = useState(false);
   const userStore = useSelector((state: RootState) => state.user);
   const navigate = useNavigate();
 
@@ -84,6 +85,7 @@ const Post: FC = () => {
   };
 
   const handleCreatePost = async () => {
+    setIsLoading(true);
     try {
       const { data: insertedPosts, error: postError } = await supabase
         .from("posts")
@@ -93,51 +95,45 @@ const Post: FC = () => {
         })
         .select();
 
-      if (postError) {
-        console.error("Error creating post:", postError);
-        return;
+      if (postError || !insertedPosts?.[0]) {
+        throw postError || new Error("No post returned after insert.");
       }
 
-      const newPost = insertedPosts?.[0];
-      if (!newPost) {
-        console.error("No post returned after insert.");
-        return;
-      }
+      const newPost = insertedPosts[0];
 
       if (images.length > 0) {
-        const imageDataPromises = images.map(async (img) => {
-          const imageUrl = await uploadFile(img.file);
-          return {
+        const imageData = await Promise.all(
+          images.map(async (img) => ({
             post_id: newPost.id,
-            image_url: imageUrl,
-          };
-        });
-
-        const imageData = await Promise.all(imageDataPromises);
-
+            image_url: await uploadFile(img.file),
+          }))
+        );
         const { error: imageError } = await supabase
           .from("post_images")
           .insert(imageData);
-
         if (imageError) {
-          return console.error("Error inserting post images:", imageError);
+          throw imageError;
         }
       }
 
       if (video) {
         const videoUrl = await uploadFile(video.file);
-        const { error: videoError } = await supabase.from("posts").insert({
-          video_url: videoUrl,
-          user_id: userStore.id,
-        });
-
+        const { error: videoError } = await supabase
+          .from("post_videos")
+          .insert({
+            post_id: newPost.id,
+            video_url: videoUrl,
+          });
         if (videoError) {
-          return console.error("Error inserting post video:", videoError);
+          throw videoError;
         }
       }
+
       navigate("/");
     } catch (error) {
-      console.error("Unexpected error:", error);
+      console.error("Error creating post:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -148,81 +144,69 @@ const Post: FC = () => {
     };
   }, [images, video]);
 
-  function renderImages() {
-    return (
-      <div>
-        {images.length > 0 && (
-          <div className="relative flex flex-col items-center">
-            <div className="relative w-full h-48 bg-gray-200 rounded-md overflow-hidden flex items-center justify-center">
-              <img
-                src={images[currentIndex].preview}
-                alt={`Selected ${currentIndex + 1}`}
-                className="object-cover w-full rounded-lg shadow-xl h-full"
-              />
-
-              <div className="absolute top-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded">
-                {currentIndex + 1}/{images.length}
-              </div>
-
-              <button
-                onClick={handleDeleteCurrentImage}
-                className="absolute bottom-2 right-2">
-                <img src={Bin} alt="Delete" />
-              </button>
-
-              {images.length > 1 && (
-                <>
-                  <button
-                    onClick={handlePrev}
-                    className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/70 hover:bg-white text-gray-900 p-1 rounded-full shadow">
-                    ‹
-                  </button>
-                  <button
-                    onClick={handleNext}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/70 hover:bg-white text-gray-900 p-1 rounded-full shadow">
-                    ›
-                  </button>
-                </>
-              )}
-            </div>
+  const renderImages = () =>
+    images.length > 0 && (
+      <div className="relative flex flex-col items-center">
+        <div className="relative w-full h-48 bg-gray-200 rounded-md overflow-hidden flex items-center justify-center">
+          <img
+            src={images[currentIndex].preview}
+            alt={`Selected ${currentIndex + 1}`}
+            className="object-cover w-full rounded-lg shadow-xl h-full"
+          />
+          <div className="absolute top-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded">
+            {currentIndex + 1}/{images.length}
           </div>
-        )}
+          <button
+            onClick={handleDeleteCurrentImage}
+            className="absolute bottom-2 right-2"
+          >
+            <img src={Bin} alt="Delete" />
+          </button>
+          {images.length > 1 && (
+            <>
+              <button
+                onClick={handlePrev}
+                className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/70 hover:bg-white text-gray-900 p-1 rounded-full shadow"
+              >
+                ‹
+              </button>
+              <button
+                onClick={handleNext}
+                className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/70 hover:bg-white text-gray-900 p-1 rounded-full shadow"
+              >
+                ›
+              </button>
+            </>
+          )}
+        </div>
       </div>
     );
-  }
 
-  function renderVideo() {
-    return (
-      <div>
-        {video && (
-          <div className="relative flex flex-col items-center">
-            <div className="relative w-full h-48 bg-gray-200 rounded-md overflow-hidden flex items-center justify-center">
-              <video
-                src={video.preview}
-                controls
-                className="object-cover w-full rounded-lg shadow-xl h-full"
-              />
-
-              <button
-                onClick={handleDeleteVideo}
-                className="absolute bottom-2 right-2">
-                <img src={Bin} alt="Delete" />
-              </button>
-            </div>
-          </div>
-        )}
+  const renderVideo = () =>
+    video && (
+      <div className="relative flex flex-col items-center">
+        <div className="relative w-full h-48 bg-gray-200 rounded-md overflow-hidden flex items-center justify-center">
+          <video
+            src={video.preview}
+            controls
+            className="object-cover w-full rounded-lg shadow-xl h-full"
+          />
+          <button
+            onClick={handleDeleteVideo}
+            className="absolute bottom-2 right-2"
+          >
+            <img src={Bin} alt="Delete" />
+          </button>
+        </div>
       </div>
     );
-  }
 
-  function renderMediaPreview() {
-    return images.length > 0 ? renderImages() : renderVideo();
-  }
+  const renderMediaPreview = () =>
+    images.length > 0 ? renderImages() : renderVideo();
 
-  function renderOptions() {
-    if (images.length > 0 || video) return null;
-
-    return (
+  const renderOptions = () =>
+    images.length === 0 &&
+    !video && (
       <>
         <div className="flex items-center">
           <label className="flex items-center gap-2 text-gray-700 cursor-pointer">
@@ -237,7 +221,6 @@ const Post: FC = () => {
             />
           </label>
         </div>
-
         <div className="flex items-center">
           <label className="flex items-center gap-2 text-gray-700 cursor-pointer">
             <img src={VideoIcon} alt="Add Video" />
@@ -250,7 +233,6 @@ const Post: FC = () => {
             />
           </label>
         </div>
-
         <div className="flex items-center">
           <label className="flex items-center gap-2 text-gray-700 cursor-pointer">
             <img src={Camera} alt="Add Camera Photo" />
@@ -266,7 +248,6 @@ const Post: FC = () => {
         </div>
       </>
     );
-  }
 
   return (
     <div className="bg-white p-4 h-full">
@@ -275,7 +256,7 @@ const Post: FC = () => {
         <div className="flex flex-col p-6 justify-between h-full">
           <div className="flex flex-col gap-4">
             {renderMediaPreview()}
-            {!!images.length && (
+            {images.length > 0 && (
               <div className="flex items-center">
                 <label className="flex items-center gap-2 text-gray-700 cursor-pointer">
                   <img src={Gallary} alt="Add Gallery" />
@@ -290,7 +271,6 @@ const Post: FC = () => {
                 </label>
               </div>
             )}
-
             <textarea
               placeholder="Surrounded by nature’s beauty, finding peace in every leaf, breeze, and sunset. 🌿🌍 #NatureVibes #OutdoorEscape #EarthLover"
               className="w-full h-32 rounded resize-none p-2 border border-gray-300"
@@ -299,15 +279,19 @@ const Post: FC = () => {
                 setCaption(e.target.value)
               }
             />
-
             {renderOptions()}
           </div>
-
           <button
-            className="bg-black w-full p-2 rounded-full text-white font-semibold"
+            className={`bg-black w-full p-2 rounded-full text-white font-semibold flex items-center justify-center ${
+              isLoading ? "opacity-50 cursor-not-allowed" : ""
+            }`}
             onClick={handleCreatePost}
-            disabled={caption.trim() === "" && images.length === 0 && !video}>
-            CREATE
+            disabled={
+              isLoading ||
+              (caption.trim() === "" && images.length === 0 && !video)
+            }
+          >
+            {isLoading ? "Creating..." : "CREATE"}
           </button>
         </div>
       </div>

@@ -18,8 +18,10 @@ const EditProfile: React.FC = () => {
   const [user, setUser] = useState<User>({
     ...userStore,
   });
+  const [isUpdating, setIsUpdating] = useState(false);
 
   const handleUploadBackground = async (file: File) => {
+    setIsUpdating(true);
     try {
       const background_image = await uploadFile(file);
       setUser((prev) => ({
@@ -40,21 +42,25 @@ const EditProfile: React.FC = () => {
         store.dispatch(updateUser(user));
       }
     } catch (err) {
-      console.error("Error in handleSave:", err);
+      console.error("Error in handleUploadBackground:", err);
+    } finally {
+      setIsUpdating(false);
     }
   };
 
   const handleSave = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setIsUpdating(true);
     let profilePictureUrl = user.profilePictureUrl;
-    if (file) {
-      profilePictureUrl = await uploadFile(file);
-      setUser((prev) => ({
-        ...prev,
-        profilePictureUrl,
-      }));
-    }
     try {
+      if (file) {
+        profilePictureUrl = await uploadFile(file);
+        setUser((prev) => ({
+          ...prev,
+          profilePictureUrl,
+        }));
+      }
+
       const { error } = await supabase
         .from("users")
         .update({
@@ -72,6 +78,8 @@ const EditProfile: React.FC = () => {
       }
     } catch (err) {
       console.error("Error in handleSave:", err);
+    } finally {
+      setIsUpdating(false); // End updating
     }
   };
 
@@ -89,16 +97,16 @@ const EditProfile: React.FC = () => {
 
   return (
     <div className="w-full h-full bg-white">
-      <div className="w-full  relative">
+      <div className="w-full relative">
         <img
           src={user.backgroundImage || BgImg}
-          alt={BgImg}
-          className="w-full  object-cover h-[150px] rounded-b-3xl overflow-hidden "
+          alt="Background"
+          className="w-full object-cover h-[150px] rounded-b-3xl overflow-hidden"
         />
-        <div className="bg-[#f4f4f4] w-7 h-7 rounded-full absolute bottom-3 right-5 flex items-center justify-center ">
+        <div className="bg-[#f4f4f4] w-7 h-7 rounded-full absolute bottom-3 right-5 flex items-center justify-center">
           <ProfilePicture withoutPreview onEdit={handleUploadBackground} />
         </div>
-        <div className=" absolute top-3 left-5 flex items-center justify-center text-[#f4f4f4] font-bold gap-2 ">
+        <div className="absolute top-3 left-5 flex items-center justify-center text-[#f4f4f4] font-bold gap-2">
           <BackButton onBack={handleBack} title="Edit Profile" />
         </div>
         <div className="absolute -bottom-10 left-5">
@@ -116,7 +124,7 @@ const EditProfile: React.FC = () => {
         className="h-[75%] flex flex-col justify-between p-6"
       >
         <div className="my-10 space-y-4">
-          <div className="w-full flex gap-2 flex-col ">
+          <div className="w-full flex gap-2 flex-col">
             <label htmlFor="name">Name</label>
             <input
               id="name"
@@ -124,24 +132,29 @@ const EditProfile: React.FC = () => {
               value={user.displayName || ""}
               onChange={handleNameChange}
               className="bg-transparent border-b-[1px] focus:outline-none"
+              disabled={isUpdating} // Optional: Disable inputs while updating
             />
           </div>
-          <div className="w-full flex gap-2 flex-col ">
+          <div className="w-full flex gap-2 flex-col">
             <label htmlFor="bio">Bio</label>
             <textarea
               id="bio"
               value={user.bio || ""}
               onChange={handleBioChange}
               className="bg-transparent border-b-[1px] overflow-hidden focus:outline-none"
+              disabled={isUpdating}
             />
           </div>
         </div>
 
         <button
           type="submit"
-          className="bg-black text-white p-2 rounded-full font-semibold"
+          className={`bg-black text-white p-2 rounded-full font-semibold ${
+            isUpdating ? "opacity-50 cursor-not-allowed" : ""
+          }`}
+          disabled={isUpdating}
         >
-          SAVE
+          {isUpdating ? "Updating..." : "SAVE"}
         </button>
       </form>
     </div>

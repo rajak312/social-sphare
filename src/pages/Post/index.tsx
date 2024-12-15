@@ -1,7 +1,8 @@
 import React, { FC, useState, ChangeEvent } from "react";
-import { ArrowLeftIcon, TrashIcon } from "@heroicons/react/24/outline";
+import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 import { withDefaultLayout } from "../../hoc/withDefaulLayout";
-
+import Bin from "../../assets/bin.svg";
+import Gallary from "../../assets/gallery.svg";
 const Post: FC = () => {
   const [images, setImages] = useState<string[]>([]);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
@@ -48,93 +49,80 @@ const Post: FC = () => {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100 p-4">
-      <div className="w-[350px] bg-white rounded-md shadow-md">
-        {/* Header */}
-        <div className="flex items-center p-4 border-b border-gray-200">
+    <div className="bg-white h-full">
+      <div className="h-[80%]">
+        <div className="flex items-center p-4 ">
           <button className="mr-2 text-gray-600 hover:text-gray-800">
             <ArrowLeftIcon className="w-5 h-5" />
           </button>
           <h1 className="font-medium text-lg text-gray-900">New post</h1>
         </div>
 
-        {/* Image Display Section */}
-        {images.length > 0 && (
-          <div className="relative p-4 flex flex-col items-center">
-            <div className="relative w-full h-48 bg-gray-200 rounded-md overflow-hidden flex items-center justify-center">
-              {/* Image */}
-              <img
-                src={images[currentIndex]}
-                alt={`Selected ${currentIndex + 1}`}
-                className="object-cover w-full h-full"
-              />
+        <div className="flex flex-col  p-6 justify-between h-full ">
+          <div className="flex flex-col gap-4">
+            <div>
+              {images.length > 0 && (
+                <div className="relative  flex flex-col items-center">
+                  <div className="relative w-full h-48 bg-gray-200 rounded-md overflow-hidden flex items-center justify-center">
+                    <img
+                      src={images[currentIndex]}
+                      alt={`Selected ${currentIndex + 1}`}
+                      className="object-cover w-full rounded-lg shadow-xl h-full"
+                    />
 
-              {/* Image count indicator */}
-              <div className="absolute top-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded">
-                {currentIndex + 1}/{images.length}
-              </div>
+                    <div className="absolute top-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded">
+                      {currentIndex + 1}/{images.length}
+                    </div>
 
-              {/* Delete button */}
-              <button
-                onClick={handleDeleteCurrentImage}
-                className="absolute bottom-2 right-2 bg-white p-1 rounded-full shadow text-gray-700 hover:text-red-500"
-              >
-                <TrashIcon className="w-4 h-4" />
-              </button>
+                    <button
+                      onClick={handleDeleteCurrentImage}
+                      className="absolute bottom-2 right-2">
+                      <img src={Bin} alt="" />
+                    </button>
 
-              {/* Navigation arrows if more than one image */}
-              {images.length > 1 && (
-                <>
-                  <button
-                    onClick={handlePrev}
-                    className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/70 hover:bg-white text-gray-900 p-1 rounded-full shadow"
-                  >
-                    ‹
-                  </button>
-                  <button
-                    onClick={handleNext}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/70 hover:bg-white text-gray-900 p-1 rounded-full shadow"
-                  >
-                    ›
-                  </button>
-                </>
+                    {images.length > 1 && (
+                      <>
+                        <button
+                          onClick={handlePrev}
+                          className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/70 hover:bg-white text-gray-900 p-1 rounded-full shadow">
+                          ‹
+                        </button>
+                        <button
+                          onClick={handleNext}
+                          className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/70 hover:bg-white text-gray-900 p-1 rounded-full shadow">
+                          ›
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </div>
               )}
             </div>
+
+            <div className="flex items-center">
+              <label className="flex items-center gap-2 text-gray-700 cursor-pointer">
+                <img src={Gallary} alt="" />
+                <span className="font-bold">Add more Photos</span>
+                <input
+                  type="file"
+                  multiple
+                  className="hidden"
+                  onChange={handleAddImages}
+                />
+              </label>
+            </div>
+
+            <textarea
+              placeholder="Surrounded by nature’s beauty, finding peace in every leaf, breeze, and sunset. 🌿🌍 #NatureVibes #OutdoorEscape #EarthLover"
+              className="w-full h-32 rounded resize-none"
+              value={caption}
+              onChange={(e: ChangeEvent<HTMLTextAreaElement>) =>
+                setCaption(e.target.value)
+              }
+            />
           </div>
-        )}
 
-        {/* Add More Photos Section */}
-        <div className="px-4 py-2">
-          <div className="flex items-center mb-4">
-            <label className="flex items-center text-gray-700 cursor-pointer">
-              <span className="mr-2">📂</span>
-              <span className="underline">Add more Photos</span>
-              <input
-                type="file"
-                multiple
-                className="hidden"
-                onChange={handleAddImages}
-              />
-            </label>
-          </div>
-        </div>
-
-        {/* Caption Textarea */}
-        <div className="px-4 pb-4">
-          <textarea
-            placeholder="Surrounded by nature’s beauty, finding peace in every leaf, breeze, and sunset. 🌿🌍
-#NatureVibes #OutdoorEscape #EarthLover"
-            className="w-full h-32 p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
-            value={caption}
-            onChange={(e: ChangeEvent<HTMLTextAreaElement>) =>
-              setCaption(e.target.value)
-            }
-          />
-        </div>
-
-        {/* Create Button */}
-        <div className="border-t border-gray-200 p-4">
-          <button className="w-full bg-black text-white py-2 rounded hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-black">
+          <button className=" bg-black w-full p-2 rounded-full text-white font-semibold">
             CREATE
           </button>
         </div>

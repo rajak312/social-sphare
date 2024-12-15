@@ -5,6 +5,7 @@ import HomeScreen from "./pages/Home";
 import EditProfile from "./pages/EditProfile";
 import Profile from "./pages/Profile";
 import Post from "./pages/Post";
+import Camera from "./pages/camera";
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
         <Route path="/profile/edit" element={<EditProfile />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/post" element={<Post />} />
+        <Route path="/camera" element={<Camera />} />
       </Routes>
     </Router>
   );

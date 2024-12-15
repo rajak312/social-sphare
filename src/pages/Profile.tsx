@@ -72,7 +72,7 @@ const EditProfile: React.FC = () => {
           <MdEdit className="text-gray-500" />
         </div>
         <div className=" absolute top-3 left-5 flex items-center justify-center text-[#f4f4f4] font-bold gap-2 ">
-          <BackButton onClick={handleBack} />
+          <BackButton onBack={handleBack} />
         </div>
         <div className="absolute -bottom-10 left-5">
           <div className="relative">
@@ -86,7 +86,8 @@ const EditProfile: React.FC = () => {
 
       <form
         onSubmit={handleSave}
-        className="h-[75%] flex flex-col justify-between p-6">
+        className="h-[75%] flex flex-col justify-between p-6"
+      >
         <div className="my-10 space-y-4">
           <div className="w-full flex gap-2 flex-col ">
             <label htmlFor="name">Name</label>
@@ -111,7 +112,8 @@ const EditProfile: React.FC = () => {
 
         <button
           type="submit"
-          className="bg-black text-white p-2 rounded-full font-semibold">
+          className="bg-black text-white p-2 rounded-full font-semibold"
+        >
           SAVE
         </button>
       </form>

@@ -1,4 +1,3 @@
-// src/hoc/withAuth.tsx
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -8,6 +7,7 @@ import { onAuthStateChanged, User as FirebaseUser } from "firebase/auth";
 import LogIn from "../components/Auth/LogIn";
 import { auth } from "../firebase";
 import { supabase } from "../supabase";
+import { User } from "../store/userSlice";
 
 interface WithAuthProps {}
 
@@ -29,9 +29,25 @@ function withAuth<T extends object>(WrappedComponent: React.ComponentType<T>) {
               displayName || (email ? email.split("@")[0] : "Anonymous");
 
             if (email) {
-              dispatch(loginUser({ email, name: nameToUse }));
-              await ensureUserInSupabase(email, nameToUse, photoURL);
-              setShowLoginModal(false);
+              const supabaseUser = await ensureUserInSupabase(
+                email,
+                nameToUse,
+                photoURL
+              );
+              if (supabaseUser) {
+                dispatch(
+                  loginUser({
+                    id: supabaseUser.id,
+                    email: supabaseUser.email,
+                    display_name: supabaseUser.display_name,
+                    bio: supabaseUser.bio,
+                    profilePictureUrl: supabaseUser.profilePictureUrl,
+                  })
+                );
+                setShowLoginModal(false);
+              } else {
+                console.error("Could not load Supabase user record.");
+              }
             }
           } else {
             setShowLoginModal(true);
@@ -49,7 +65,7 @@ function withAuth<T extends object>(WrappedComponent: React.ComponentType<T>) {
       email: string,
       displayName: string,
       profilePictureUrl?: string | null
-    ) => {
+    ): Promise<User | null> => {
       try {
         const { data: existingUsers, error: selectError } = await supabase
           .from("users")
@@ -62,29 +78,40 @@ function withAuth<T extends object>(WrappedComponent: React.ComponentType<T>) {
             "Error checking if user exists in Supabase:",
             selectError
           );
-          return;
+          return null;
         }
-
         if (!existingUsers || existingUsers.length === 0) {
-          const { error: insertError } = await supabase.from("users").insert([
-            {
-              display_name: displayName,
-              bio: "",
-              profile_picture_url: profilePictureUrl || "",
-              email: email,
-            },
-          ]);
+          const { data: insertedData, error: insertError } = await supabase
+            .from("users")
+            .insert([
+              {
+                display_name: displayName,
+                bio: "",
+                profile_picture_url: profilePictureUrl || "",
+                email: email,
+              },
+            ])
+            .select();
 
           if (insertError) {
             console.error(
               "Error inserting new user into Supabase:",
               insertError
             );
+            return null;
           }
+
+          if (insertedData && insertedData.length > 0) {
+            return insertedData[0] as User;
+          }
+        } else {
+          return existingUsers[0] as User;
         }
       } catch (error) {
         console.error("Unexpected error ensuring user in Supabase:", error);
       }
+
+      return null;
     };
 
     if (checkingAuth) return null;

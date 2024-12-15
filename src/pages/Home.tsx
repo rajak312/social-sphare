@@ -57,4 +57,4 @@ function Home() {
   );
 }
 
-export default withDefaultLayout(Home);
+export default withAuth(withDefaultLayout(Home));

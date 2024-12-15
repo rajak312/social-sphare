@@ -17,11 +17,16 @@ function Home() {
   const [posts, setPosts] = useState<PostWithRelations[]>([]);
 
   async function fetchPosts() {
-    const { data, error } = await supabase.from("posts").select(`
+    const { data, error } = await supabase
+      .from("posts")
+      .select(
+        `
     *,
     post_images(*),
     likes(*)
-  `);
+  `
+      )
+      .order("updated_at", { ascending: false });
     setPosts(data as PostWithRelations[]);
   }
 
@@ -33,7 +38,8 @@ function Home() {
     <div className=" h-full p-4 ">
       <NavLink
         to="/post"
-        className="flex absolute justify-center items-center bottom-10 ml-72 h-10 w-10 rounded-full bg-black text-white">
+        className="flex absolute justify-center items-center bottom-10 ml-72 h-10 w-10 rounded-full bg-black text-white"
+      >
         <IoMdAdd className="text-2xl" />
       </NavLink>
       <div className="h-full w-full flex flex-col gap-6">

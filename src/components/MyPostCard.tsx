@@ -1,16 +1,51 @@
-import React from "react";
+import React, { useState } from "react";
 import { FaHeart } from "react-icons/fa";
-import BgImg from "../assets/loginUser.jpg";
+import { Swiper, SwiperSlide } from "swiper/react";
+import "swiper/swiper-bundle.css";
 
-const MyPostCard = () => {
+interface PostPops {
+  post_images: { image_url: string }[];
+  text: string;
+  likes: any;
+}
+
+const MyPostCard = ({ post_images, text, likes }: PostPops) => {
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  // Handler to update the image index when the slide changes
+  const handleSlideChange = (swiper: any) => {
+    setCurrentImageIndex(swiper.realIndex);
+  };
+
   return (
-    <div className="w-full h-full min-h-[200px] max-h-[240x] bg-white border shadow-xl  overflow-hidden rounded-xl relative">
-      <img src={BgImg} alt="" className="w-full h-full object-fill" />
-      <div className="absolute bottom-4 left-2">
-        <h6 className="text-white font-bold">Design Meet</h6>
+    <div className="w-full h-full min-h-[200px] max-h-[240px] bg-white border shadow-xl overflow-hidden rounded-xl relative">
+      <div className="absolute z-50 top-4 right-0 transform -translate-x-1/2 text-white font-bold bg-black bg-opacity-50 px-2  rounded-md">
+        <small>
+          {currentImageIndex + 1} / {post_images.length}
+        </small>
+      </div>
+
+      <Swiper
+        spaceBetween={10}
+        slidesPerView={1}
+        loop={true}
+        onSlideChange={handleSlideChange}>
+        {post_images.map((item, idx) => (
+          <SwiperSlide key={idx}>
+            <img
+              src={item.image_url}
+              alt={`Post Image ${idx}`}
+              className="w-full h-full object-cover"
+            />
+          </SwiperSlide>
+        ))}
+      </Swiper>
+
+      <div className="absolute z-50 bottom-4 left-2">
+        <h6 className="text-white font-bold">{text}</h6>
         <div className="flex text-gray-500 font-medium items-center gap-2">
           <FaHeart />
-          69
+          {likes.length}
         </div>
       </div>
     </div>

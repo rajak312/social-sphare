@@ -15,23 +15,25 @@ function Home() {
   );
   const [posts, setPosts] = useState<PostWithRelations[]>([]);
 
-  useEffect(() => {
-    (async () => {
-      const { data, error } = await supabase.from("posts").select(`
+  async function fetchPosts() {
+    const { data, error } = await supabase.from("posts").select(`
     *,
     post_images(*),
     likes(*)
   `);
-      setPosts(data as PostWithRelations[]);
-      console.log("data", data);
-    })();
+    setPosts(data as PostWithRelations[]);
+  }
+
+  useEffect(() => {
+    fetchPosts();
   }, []);
 
   return (
     <div className="p-4 h-full ">
       <NavLink
         to="/post"
-        className="flex absolute justify-center items-center bottom-10 ml-72 h-10 w-10 rounded-full bg-black text-white">
+        className="flex absolute justify-center items-center bottom-10 ml-72 h-10 w-10 rounded-full bg-black text-white"
+      >
         <IoMdAdd className="text-2xl" />
       </NavLink>
       <div className="h-full w-full flex flex-col gap-6">
@@ -49,7 +51,7 @@ function Home() {
         <h1 className="font-bold text-2xl">Feeds</h1>
         <div className="space-y-4">
           {posts.map((post) => (
-            <FeedCard post={post} />
+            <FeedCard post={post} refetch={fetchPosts} />
           ))}
         </div>
       </div>

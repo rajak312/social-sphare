@@ -41,6 +41,7 @@ const userSlice = createSlice({
       state.backgroundImage = action.payload.backgroundImage;
       localStorage.setItem("loggedInUser", JSON.stringify(state));
     },
+
     updateUser(state, action: PayloadAction<User>) {
       if (action.payload.displayName !== undefined) {
         state.displayName = action.payload.displayName;

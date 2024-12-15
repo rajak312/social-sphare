@@ -2,7 +2,7 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import HomeScreen from "./pages/Home";
-import EditProfile from "./pages/Profile";
+import EditProfile from "./pages/EditProfile";
 import Profile from "./pages/Profile";
 
 function App() {

@@ -1,19 +1,38 @@
+import { useRef, useState } from "react";
+
 export interface ProfilePictureProps {
   url: string;
-  onEdit?: () => void;
+  onEdit?: (file: File) => void;
 }
+
 export function ProfilePicture({ url, onEdit }: ProfilePictureProps) {
+  const [file, setFile] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const selectedFile = e.target.files[0];
+      setFile(selectedFile);
+      onEdit?.(selectedFile);
+    }
+  };
+
+  const handleButtonClick = () => {
+    fileInputRef.current?.click();
+  };
+
   return (
     <div className="relative w-24 h-24">
       <img
-        src={url}
-        // alt="Profile"
+        src={file ? URL.createObjectURL(file) : url}
         className="w-24 h-24 rounded-full object-cover border border-gray-300"
       />
+
       <button
-        className="absolute bottom-0 right-0 w-8 h-8 bg-white border border-gray-300 rounded-full flex items-center justify-center hover:bg-gray-100"
+        className="absolute bottom-0 right-0 w-8 h-8 bg-white border border-gray-300 rounded-full 
+                   flex items-center justify-center hover:bg-gray-100"
         aria-label="Edit profile picture"
-        onClick={onEdit}
+        onClick={handleButtonClick}
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -31,6 +50,13 @@ export function ProfilePicture({ url, onEdit }: ProfilePictureProps) {
           />
         </svg>
       </button>
+      <input
+        type="file"
+        accept="image/*"
+        ref={fileInputRef}
+        className="hidden"
+        onChange={handleFileChange}
+      />
     </div>
   );
 }

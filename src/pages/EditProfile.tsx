@@ -6,20 +6,31 @@ import { RootState, store } from "../store";
 import { useSelector } from "react-redux";
 import { User, updateUser } from "../store/userSlice";
 import { supabase } from "../supabase";
+import { uploadImage } from "../utils";
 
 const EditProfile: React.FC = () => {
   const userStore = useSelector((state: RootState) => state.user);
+  const [file, setFile] = useState<File | null>(null);
   const [user, setUser] = useState<User>({
     ...userStore,
   });
 
   const handleSave = async () => {
+    let profilePictureUrl = user.profilePictureUrl;
+    if (file) {
+      profilePictureUrl = await uploadImage(file);
+      setUser((prev) => ({
+        ...prev,
+        profilePictureUrl,
+      }));
+    }
     try {
       const { error } = await supabase
         .from("users")
         .update({
           display_name: user.display_name,
           bio: user.bio,
+          profilePictureUrl,
         })
         .eq("id", user.id);
 
@@ -57,7 +68,7 @@ const EditProfile: React.FC = () => {
 
       {/* Content */}
       <div className="p-4 flex flex-col items-center space-y-6">
-        <ProfilePicture url={""} />
+        <ProfilePicture url={user.profilePictureUrl || ""} onEdit={setFile} />
         <div className="w-full">
           <label
             htmlFor="name"

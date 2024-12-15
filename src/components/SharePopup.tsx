@@ -8,16 +8,33 @@ import {
 } from "react-icons/fa";
 import { RiInstagramFill } from "react-icons/ri";
 
-const SharePopup = ({ url, onClose }) => {
+// Define types for the component props
+interface SharePopupProps {
+  url: string; // The URL to share
+  onClose: () => void; // Function to close the popup
+}
+
+const SharePopup: React.FC<SharePopupProps> = ({ url, onClose }) => {
   const [copied, setCopied] = useState(false);
 
+  // Copy URL to clipboard
   const handleCopy = () => {
     navigator.clipboard.writeText(url);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const handleSocialShare = (platform) => {
+  // Social share handling, restricting `platform` to known values
+  const handleSocialShare = (
+    platform:
+      | "facebook"
+      | "twitter"
+      | "linkedin"
+      | "whatsapp"
+      | "messenger"
+      | "instagram"
+      | "discord"
+  ) => {
     let shareUrl = "";
     switch (platform) {
       case "facebook":
@@ -86,7 +103,7 @@ const SharePopup = ({ url, onClose }) => {
           </button>
           <button
             onClick={() => handleSocialShare("instagram")}
-            className="text-gradient text-red-500 font-medium p-2 hover:bg-gradient-to-r rounded-full">
+            className="text-gradient font-medium p-2 hover:bg-gradient-to-r rounded-full">
             <RiInstagramFill size={24} />
           </button>
           <button

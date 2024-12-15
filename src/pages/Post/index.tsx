@@ -194,7 +194,6 @@ const Post: FC = () => {
     );
   }
 
-  // Render video preview
   function renderVideo() {
     return (
       <div>
@@ -220,14 +219,11 @@ const Post: FC = () => {
     );
   }
 
-  // Render media previews
   function renderMediaPreview() {
     return images.length > 0 ? renderImages() : renderVideo();
   }
 
-  // Render upload options conditionally
   function renderOptions() {
-    // Hide options if either images or video are already selected
     if (images.length > 0 || video) return null;
 
     return (

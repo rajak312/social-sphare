@@ -128,7 +128,7 @@ const FeedCard = ({ post, refetch }: FeedCardProps) => {
       </div>
       <small className="text-ellipsis line-clamp-3">{post.text}</small>
       <div className="overflow-x-auto flex h-[167px]">
-        {post.post_images.map((img, idx) => (
+        {post.post_images?.map((img, idx) => (
           <img
             key={idx}
             src={img.image_url ?? undefined}
@@ -137,20 +137,29 @@ const FeedCard = ({ post, refetch }: FeedCardProps) => {
             className="w-max"
           />
         ))}
+        {post.video_url && (
+          <video
+            src={post.video_url}
+            controls
+            className="object-cover w-full rounded-lg shadow-xl h-full"
+          />
+        )}
       </div>
       <div className="flex items-center justify-between">
         <button
           onClick={toggleLike}
           className={`flex items-center gap-2 font-medium ${
             isLiked ? "text-pink-700" : "text-gray-500"
-          }`}>
+          }`}
+        >
           <FaHeart />
           {post.likes.length}
         </button>
         <div>
           <button
             onClick={handleShareClick}
-            className="font-semibold flex items-center gap-2 bg-gray-200 rounded-full px-4 py-1">
+            className="font-semibold flex items-center gap-2 bg-gray-200 rounded-full px-4 py-1"
+          >
             <RiSendPlaneFill className="text-lg" />
             Share
           </button>

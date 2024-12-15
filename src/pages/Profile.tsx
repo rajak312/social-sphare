@@ -1,24 +1,22 @@
-import React, { useState } from "react";
+import React from "react";
 import { BackButton } from "../components/BackButton";
 import { withDefaultLayout } from "../hoc/withDefaulLayout";
 import { RootState } from "../store";
 import { useSelector } from "react-redux";
-import { User, updateUser } from "../store/userSlice";
 import BgImg from "../assets/loginUser.jpg";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import MyPostCard from "../components/MyPostCard";
+import withAuth from "../hoc/withAuth";
 import { IoMdAdd } from "react-icons/io";
 
 const Profile: React.FC = () => {
-  const userStore = useSelector((state: RootState) => state.user);
-
-  const [file, setFile] = useState<File | null>(null);
-  const [user, setUser] = useState<User>({
-    ...userStore,
-  });
+  const { profilePictureUrl, displayName, bio } = useSelector(
+    (state: RootState) => state.user
+  );
+  const navigate = useNavigate();
 
   const handleBack = () => {
-    console.log("Back button clicked");
+    navigate("/");
   };
 
   return (
@@ -41,12 +39,11 @@ const Profile: React.FC = () => {
         <NavLink
           to="/profile/edit"
           className="absolute right-10 rounded-full  -bottom-10 border-gray-400 border w-[200px] flex justify-center items-center font-medium">
-          {" "}
           Edit Profile
         </NavLink>
         <div className="absolute -bottom-10 left-5">
           <img
-            src={user.profilePictureUrl ?? undefined}
+            src={profilePictureUrl ?? undefined}
             alt=""
             width={50}
             height={50}
@@ -56,8 +53,8 @@ const Profile: React.FC = () => {
       </div>
       <div className="mt-10 p-4 flex flex-col gap-6">
         <div>
-          <h1 className="font-medium text-2xl">{user.displayName}</h1>
-          <p>{user.bio}</p>
+          <h1 className="font-medium text-2xl">{displayName}</h1>
+          <p>{bio}</p>
         </div>
         <div className="space-y-4">
           <h1 className="font-medium text-xl">My Posts</h1>
@@ -70,4 +67,4 @@ const Profile: React.FC = () => {
   );
 };
 
-export default withDefaultLayout(Profile);
+export default withAuth(withDefaultLayout(Profile));

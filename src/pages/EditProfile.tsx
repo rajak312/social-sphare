@@ -9,6 +9,7 @@ import { supabase } from "../supabase";
 import { uploadFile } from "../utils";
 import BgImg from "../assets/loginUser.jpg";
 import { MdEdit } from "react-icons/md";
+import withAuth from "../hoc/withAuth";
 
 const EditProfile: React.FC = () => {
   const userStore = useSelector((state: RootState) => state.user);
@@ -86,7 +87,8 @@ const EditProfile: React.FC = () => {
 
       <form
         onSubmit={handleSave}
-        className="h-[75%] flex flex-col justify-between p-6">
+        className="h-[75%] flex flex-col justify-between p-6"
+      >
         <div className="my-10 space-y-4">
           <div className="w-full flex gap-2 flex-col ">
             <label htmlFor="name">Name</label>
@@ -111,7 +113,8 @@ const EditProfile: React.FC = () => {
 
         <button
           type="submit"
-          className="bg-black text-white p-2 rounded-full font-semibold">
+          className="bg-black text-white p-2 rounded-full font-semibold"
+        >
           SAVE
         </button>
       </form>
@@ -119,4 +122,4 @@ const EditProfile: React.FC = () => {
   );
 };
 
-export default withDefaultLayout(EditProfile);
+export default withAuth(withDefaultLayout(EditProfile));

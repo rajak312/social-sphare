@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { FormEvent, useState } from "react";
 import { BackButton } from "../components/BackButton";
 import { withDefaultLayout } from "../hoc/withDefaulLayout";
 import { ProfilePicture } from "../components/ProfilePicture";
@@ -17,7 +17,8 @@ const EditProfile: React.FC = () => {
     ...userStore,
   });
 
-  const handleSave = async () => {
+  const handleSave = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     let profilePictureUrl = user.profilePictureUrl;
     if (file) {
       profilePictureUrl = await uploadImage(file);
@@ -60,74 +61,60 @@ const EditProfile: React.FC = () => {
   };
 
   return (
-    // <div className="flex flex-col h-full">
-    //   {/* Header */}
-    //   <div className="flex items-center justify-start p-4 border-b bg-white">
-    //     <BackButton onClick={handleBack} />
-    //     <h1 className="flex-1 text-center text-lg font-bold">Edit Profile</h1>
-    //     <div className="w-10" /> {/* spacer for symmetry */}
-    //   </div>
-
-    //   {/* Content */}
-    //   <div className="p-4 flex flex-col items-center space-y-6">
-    //     <ProfilePicture url={user.profilePictureUrl || ""} onEdit={setFile} />
-    //     <div className="w-full">
-    //       <label
-    //         htmlFor="name"
-    //         className="block text-sm font-medium text-gray-700 mb-1">
-    //         Name
-    //       </label>
-    //       <input
-    //         id="name"
-    //         type="text"
-    //         className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:border-black"
-    //         value={user.displayName || ""}
-    //         onChange={handleNameChange}
-    //       />
-    //     </div>
-
-    //     {/* Bio Input */}
-    //     <div className="w-full">
-    //       <label
-    //         htmlFor="bio"
-    //         className="block text-sm font-medium text-gray-700 mb-1">
-    //         Bio
-    //       </label>
-    //       <textarea
-    //         id="bio"
-    //         className="w-full border border-gray-300 rounded-md p-2 h-32 resize-none focus:outline-none focus:border-black"
-    //         value={user.bio || ""}
-    //         onChange={handleBioChange}
-    //       />
-    //     </div>
-    //   </div>
-
-    //   {/* Footer / Save Button */}
-    //   <div className="p-4 border-t bg-white">
-    //     <button
-    //       onClick={handleSave}
-    //       className="w-full bg-black text-white py-2 rounded-md hover:bg-gray-900">
-    //       SAVE
-    //     </button>
-    //   </div>
-    // </div>
-    <div className="w-full ">
+    <div className="w-full h-full bg-white">
       <div className="w-full  relative">
         <img
           src={BgImg}
-          alt=""
+          alt={BgImg}
           className="w-full  object-cover h-[150px] rounded-b-3xl overflow-hidden "
         />
-
+        <div className="bg-[#f4f4f4] w-7 h-7 rounded-full absolute bottom-3 right-5 flex items-center justify-center ">
+          <MdEdit className="text-gray-500" />
+        </div>
+        <div className=" absolute top-3 left-5 flex items-center justify-center text-[#f4f4f4] font-bold gap-2 ">
+          <BackButton onClick={handleBack} />
+        </div>
         <div className="absolute -bottom-10 left-5">
           <div className="relative">
-            <img src={BgImg} alt="" className=" rounded-full h-20 w-20 " />
-            <div className="bg-gray-300 w-7 h-7 rounded-full absolute bottom-2 right-2 ">
-              <MdEdit className="" />
-            </div>
+            <ProfilePicture
+              url={user.profilePictureUrl || ""}
+              onEdit={setFile}
+            />
           </div>
         </div>
       </div>
+
+      <form
+        onSubmit={handleSave}
+        className="h-[75%] flex flex-col justify-between p-6">
+        <div className="my-10 space-y-4">
+          <div className="w-full flex gap-2 flex-col ">
+            <label htmlFor="name">Name</label>
+            <input
+              id="name"
+              type="text"
+              value={user.displayName || ""}
+              onChange={handleNameChange}
+              className="bg-transparent border-b-[1px] focus:outline-none"
+            />
+          </div>
+          <div className="w-full flex gap-2 flex-col ">
+            <label htmlFor="bio">Bio</label>
+            <textarea
+              id="bio"
+              value={user.bio || ""}
+              onChange={handleBioChange}
+              className="bg-transparent border-b-[1px] overflow-hidden focus:outline-none"
+            />
+          </div>
+        </div>
+
+        <button
+          type="submit"
+          className="bg-black text-white p-2 rounded-full font-semibold">
+          SAVE
+        </button>
+      </form>
     </div>
   );
 };

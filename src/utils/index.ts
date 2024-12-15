@@ -28,3 +28,7 @@ export async function uploadImage(file: File): Promise<string | null> {
     return null;
   }
 }
+
+// export async function getUser(userId:string){
+//     return await supabase.from('users').fetch()
+// }

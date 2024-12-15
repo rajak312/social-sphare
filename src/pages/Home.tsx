@@ -3,11 +3,24 @@ import withAuth from "../hoc/withAuth";
 import { withDefaultLayout } from "../hoc/withDefaulLayout";
 import { RootState } from "../store";
 import FeedCard from "../components/FeedCard";
+import { supabase } from "../supabase";
+import { useEffect } from "react";
 
 function Home() {
   const { displayName, profilePictureUrl } = useSelector(
     (state: RootState) => state.user
   );
+
+  useEffect(() => {
+    (async () => {
+      const { data, error } = await supabase.from("posts").select(`
+    *,
+    post_images(*),
+    likes(*)
+  `);
+      console.log("data", data);
+    })();
+  }, []);
 
   return (
     <div className="p-4 h-full">
@@ -31,4 +44,4 @@ function Home() {
   );
 }
 
-export default withAuth(withDefaultLayout(Home));
+export default withDefaultLayout(Home);

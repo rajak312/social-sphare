@@ -1,14 +1,18 @@
 import React, { FC, useState, ChangeEvent } from "react";
-import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 import { withDefaultLayout } from "../../hoc/withDefaulLayout";
 import Bin from "../../assets/bin.svg";
 import Gallary from "../../assets/gallery.svg";
 import { BackButton } from "../../components/BackButton";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "../../supabase";
+import { useSelector } from "react-redux";
+import { RootState } from "../../store";
+
 const Post: FC = () => {
   const [images, setImages] = useState<string[]>([]);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [caption, setCaption] = useState<string>("");
+  const userStore = useSelector((state: RootState) => state.user);
   const navigate = useNavigate();
 
   const handleAddImages = (e: ChangeEvent<HTMLInputElement>) => {
@@ -53,6 +57,48 @@ const Post: FC = () => {
 
   const handleBack = () => {
     navigate("/");
+  };
+
+  const handleCreatePost = async () => {
+    try {
+      const { data: insertedPosts, error: postError } = await supabase
+        .from("posts")
+        .insert({
+          text: caption,
+          user_id: userStore.id,
+        })
+        .select();
+
+      if (postError) {
+        console.error("Error creating post:", postError);
+        return;
+      }
+
+      const newPost = insertedPosts?.[0];
+      if (!newPost) {
+        console.error("No post returned after insert.");
+        return;
+      }
+      if (images.length > 0) {
+        const imageData = images.map((img) => ({
+          post_id: newPost.id,
+          image_url: img, // In a real scenario, you would upload the file and get a real URL.
+        }));
+
+        const { error: imageError } = await supabase
+          .from("post_images")
+          .insert(imageData);
+
+        if (imageError) {
+          console.error("Error inserting post images:", imageError);
+        }
+      }
+
+      // If everything goes well, navigate back or show a success message
+      navigate("/");
+    } catch (error) {
+      console.error("Unexpected error:", error);
+    }
   };
 
   function renderImages() {
@@ -129,10 +175,13 @@ const Post: FC = () => {
                 setCaption(e.target.value)
               }
             />
-            <button>camara</button>
+            <button>camera</button>
           </div>
 
-          <button className=" bg-black w-full p-2 rounded-full text-white font-semibold">
+          <button
+            className="bg-black w-full p-2 rounded-full text-white font-semibold"
+            onClick={handleCreatePost}
+          >
             CREATE
           </button>
         </div>

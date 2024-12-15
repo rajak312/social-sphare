@@ -1,4 +1,4 @@
-import React, { FC, useState, ChangeEvent } from "react";
+import React, { FC, useState, ChangeEvent, useEffect } from "react";
 import { withDefaultLayout } from "../../hoc/withDefaulLayout";
 import Bin from "../../assets/bin.svg";
 import Gallary from "../../assets/gallery.svg";
@@ -7,9 +7,10 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "../../supabase";
 import { useSelector } from "react-redux";
 import { RootState } from "../../store";
+import { uploadImage } from "../../utils";
 
 const Post: FC = () => {
-  const [images, setImages] = useState<string[]>([]);
+  const [images, setImages] = useState<{ file: File; preview: string }[]>([]);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [caption, setCaption] = useState<string>("");
   const userStore = useSelector((state: RootState) => state.user);
@@ -19,11 +20,11 @@ const Post: FC = () => {
     const files = e.target.files;
     if (!files) return;
 
-    const newImages: string[] = [];
+    const newImages: { file: File; preview: string }[] = [];
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
       const imageURL = URL.createObjectURL(file);
-      newImages.push(imageURL);
+      newImages.push({ file, preview: imageURL });
     }
 
     setImages((prev) => [...prev, ...newImages]);
@@ -47,6 +48,7 @@ const Post: FC = () => {
   const handleDeleteCurrentImage = () => {
     if (images.length > 0) {
       const updated = [...images];
+      URL.revokeObjectURL(updated[currentIndex].preview);
       updated.splice(currentIndex, 1);
       setImages(updated);
       setCurrentIndex((prev) =>
@@ -79,11 +81,17 @@ const Post: FC = () => {
         console.error("No post returned after insert.");
         return;
       }
+
       if (images.length > 0) {
-        const imageData = images.map((img) => ({
-          post_id: newPost.id,
-          image_url: img, // In a real scenario, you would upload the file and get a real URL.
-        }));
+        const imageDataPromises = images.map(async (img) => {
+          const imageUrl = await uploadImage(img.file);
+          return {
+            post_id: newPost.id,
+            image_url: imageUrl,
+          };
+        });
+
+        const imageData = await Promise.all(imageDataPromises);
 
         const { error: imageError } = await supabase
           .from("post_images")
@@ -101,14 +109,21 @@ const Post: FC = () => {
     }
   };
 
+  useEffect(() => {
+    // Cleanup function to revoke object URLs
+    return () => {
+      images.forEach((image) => URL.revokeObjectURL(image.preview));
+    };
+  }, [images]);
+
   function renderImages() {
     return (
       <div>
         {images.length > 0 && (
-          <div className="relative  flex flex-col items-center">
+          <div className="relative flex flex-col items-center">
             <div className="relative w-full h-48 bg-gray-200 rounded-md overflow-hidden flex items-center justify-center">
               <img
-                src={images[currentIndex]}
+                src={images[currentIndex].preview}
                 alt={`Selected ${currentIndex + 1}`}
                 className="object-cover w-full rounded-lg shadow-xl h-full"
               />
@@ -121,7 +136,7 @@ const Post: FC = () => {
                 onClick={handleDeleteCurrentImage}
                 className="absolute bottom-2 right-2"
               >
-                <img src={Bin} alt="" />
+                <img src={Bin} alt="Delete" />
               </button>
 
               {images.length > 1 && (
@@ -151,36 +166,39 @@ const Post: FC = () => {
     <div className="bg-white h-full">
       <div className="h-[80%]">
         <BackButton onBack={handleBack} title="New Post" />
-        <div className="flex flex-col  p-6 justify-between h-full ">
+        <div className="flex flex-col p-6 justify-between h-full">
           <div className="flex flex-col gap-4">
             {renderImages()}
             <div className="flex items-center">
               <label className="flex items-center gap-2 text-gray-700 cursor-pointer">
-                <img src={Gallary} alt="" />
+                <img src={Gallary} alt="Add Gallery" />
                 <span className="font-bold">Add more Photos</span>
                 <input
                   type="file"
                   multiple
                   className="hidden"
                   onChange={handleAddImages}
+                  accept="image/*"
                 />
               </label>
             </div>
 
             <textarea
               placeholder="Surrounded by nature’s beauty, finding peace in every leaf, breeze, and sunset. 🌿🌍 #NatureVibes #OutdoorEscape #EarthLover"
-              className="w-full h-32 rounded resize-none"
+              className="w-full h-32 rounded resize-none p-2 border border-gray-300"
               value={caption}
               onChange={(e: ChangeEvent<HTMLTextAreaElement>) =>
                 setCaption(e.target.value)
               }
             />
-            <button>camera</button>
+            {/* Remove or style the camera button as needed */}
+            {/* <button>camera</button> */}
           </div>
 
           <button
             className="bg-black w-full p-2 rounded-full text-white font-semibold"
             onClick={handleCreatePost}
+            disabled={caption.trim() === "" && images.length === 0}
           >
             CREATE
           </button>

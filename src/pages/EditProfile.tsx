@@ -61,7 +61,7 @@ const EditProfile: React.FC = () => {
     <div className="flex flex-col h-full">
       {/* Header */}
       <div className="flex items-center justify-start p-4 border-b bg-white">
-        <BackButton onClick={handleBack} />
+        <BackButton onBack={handleBack} />
         <h1 className="flex-1 text-center text-lg font-bold">Edit Profile</h1>
         <div className="w-10" /> {/* spacer for symmetry */}
       </div>
@@ -72,7 +72,8 @@ const EditProfile: React.FC = () => {
         <div className="w-full">
           <label
             htmlFor="name"
-            className="block text-sm font-medium text-gray-700 mb-1">
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
             Name
           </label>
           <input
@@ -88,7 +89,8 @@ const EditProfile: React.FC = () => {
         <div className="w-full">
           <label
             htmlFor="bio"
-            className="block text-sm font-medium text-gray-700 mb-1">
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
             Bio
           </label>
           <textarea
@@ -104,7 +106,8 @@ const EditProfile: React.FC = () => {
       <div className="p-4 border-t bg-white">
         <button
           onClick={handleSave}
-          className="w-full bg-black text-white py-2 rounded-md hover:bg-gray-900">
+          className="w-full bg-black text-white py-2 rounded-md hover:bg-gray-900"
+        >
           SAVE
         </button>
       </div>

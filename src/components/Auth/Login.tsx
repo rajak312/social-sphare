@@ -10,8 +10,9 @@ import Bg8 from "../../assets/bgImg8.png";
 import Bg9 from "../../assets/bgImg9.png";
 import Logo from "../../assets/logo.svg";
 import { GoogleLogin } from "./GoogleLogin";
+import { withDefaultLayout } from "../../hoc/withDefaulLayout";
 
-const In = () => {
+const Login = () => {
   const images = [Bg1, Bg2, Bg3, Bg4, Bg5, Bg6, Bg7, Bg8, Bg9];
 
   return (
@@ -68,4 +69,4 @@ const In = () => {
   );
 };
 
-export default In;
+export default withDefaultLayout(Login);

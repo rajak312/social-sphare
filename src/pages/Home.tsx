@@ -48,8 +48,8 @@ function Home() {
         </NavLink>
         <h1 className="font-bold text-2xl">Feeds</h1>
         <div className="space-y-4">
-          {posts.map((post) => (
-            <FeedCard post={post} />
+          {posts.map((post, idx) => (
+            <FeedCard key={idx} post={post} />
           ))}
         </div>
       </div>

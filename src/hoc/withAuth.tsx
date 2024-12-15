@@ -4,9 +4,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../store";
 import { loginUser } from "../store/userSlice";
 import { onAuthStateChanged, User as FirebaseUser } from "firebase/auth";
-import LogIn from "../components/Auth/LogIn";
 import { auth } from "../firebase";
 import { supabase } from "../supabase";
+import Login from "../components/Auth/Login";
 
 interface WithAuthProps {}
 
@@ -16,7 +16,7 @@ export interface SupabaseUser {
   display_name: string | null;
   bio: string | null;
   profile_picture_url: string | null;
-  background_image: string;
+  background_image: string | null;
 }
 
 function withAuth<T extends object>(WrappedComponent: React.ComponentType<T>) {
@@ -25,12 +25,13 @@ function withAuth<T extends object>(WrappedComponent: React.ComponentType<T>) {
     const dispatch = useDispatch();
     const { email: userEmail } = useSelector((state: RootState) => state.user);
     const [checkingAuth, setCheckingAuth] = useState(true);
-    const [showLoginModal, setShowLoginModal] = useState(false);
 
     useEffect(() => {
+      console.log("Setting up auth state listener...");
       const unsubscribe = onAuthStateChanged(
         auth,
         async (user: FirebaseUser | null) => {
+          console.log("Auth state changed. User:", user);
           if (user) {
             const { email, displayName, photoURL } = user;
             const nameToUse =
@@ -42,6 +43,7 @@ function withAuth<T extends object>(WrappedComponent: React.ComponentType<T>) {
                 nameToUse,
                 photoURL
               );
+              console.log("Supabase user:", supabaseUser);
               if (supabaseUser) {
                 dispatch(
                   loginUser({
@@ -53,19 +55,17 @@ function withAuth<T extends object>(WrappedComponent: React.ComponentType<T>) {
                     backgroundImage: supabaseUser.background_image,
                   })
                 );
-                setShowLoginModal(false);
-              } else {
-                console.error("Could not load Supabase user record.");
               }
             }
           } else {
-            setShowLoginModal(true);
+            console.log("No user is authenticated.");
           }
           setCheckingAuth(false);
         }
       );
 
       return () => {
+        console.log("Unsubscribing from auth state listener.");
         unsubscribe();
       };
     }, [dispatch]);
@@ -90,6 +90,7 @@ function withAuth<T extends object>(WrappedComponent: React.ComponentType<T>) {
           return null;
         }
         if (!existingUsers || existingUsers.length === 0) {
+          console.log("User not found in Supabase. Inserting new user...");
           const { data: insertedData, error: insertError } = await supabase
             .from("users")
             .insert([
@@ -98,6 +99,7 @@ function withAuth<T extends object>(WrappedComponent: React.ComponentType<T>) {
                 bio: "",
                 profile_picture_url: profilePictureUrl || "",
                 email: email,
+                background_image: "", // Provide a default value
               },
             ])
             .select();
@@ -111,9 +113,11 @@ function withAuth<T extends object>(WrappedComponent: React.ComponentType<T>) {
           }
 
           if (insertedData && insertedData.length > 0) {
+            console.log("Inserted new user into Supabase:", insertedData[0]);
             return insertedData[0] as SupabaseUser;
           }
         } else {
+          console.log("User already exists in Supabase:", existingUsers[0]);
           return existingUsers[0] as SupabaseUser;
         }
       } catch (error) {
@@ -123,14 +127,18 @@ function withAuth<T extends object>(WrappedComponent: React.ComponentType<T>) {
       return null;
     };
 
-    if (checkingAuth) return null;
+    if (checkingAuth) {
+      console.log("Checking authentication...");
+      return null; // Or a loading spinner
+    }
 
-    return (
-      <div>
-        <WrappedComponent {...(props as T)} />
-        {!userEmail && showLoginModal && <LogIn />}
-      </div>
-    );
+    if (!userEmail) {
+      console.log("User is not authenticated. Rendering Login component.");
+      return <Login />;
+    }
+
+    console.log("User is authenticated. Rendering WrappedComponent.");
+    return <WrappedComponent {...(props as T)} />;
   };
 
   return WithAuth;

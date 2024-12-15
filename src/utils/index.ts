@@ -2,7 +2,7 @@ import { supabase } from "../supabase";
 import { User } from "./types";
 const bucketName = import.meta.env.VITE_SUPABASE_BUCKET_NAME;
 
-export async function uploadImage(file: File): Promise<string | null> {
+export async function uploadFile(file: File): Promise<string | null> {
   if (!file) {
     alert("Please select a file!");
     return null;

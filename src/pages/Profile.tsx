@@ -3,7 +3,9 @@ import { BackButton } from "../components/BackButton";
 import { withDefaultLayout } from "../hoc/withDefaulLayout";
 import { RootState } from "../store";
 import { useSelector } from "react-redux";
-import { User } from "../store/userSlice";
+import { User, updateUser } from "../store/userSlice";
+import { supabase } from "../supabase";
+import { uploadFile } from "../utils";
 import BgImg from "../assets/loginUser.jpg";
 import { NavLink } from "react-router-dom";
 import MyPostCard from "../components/MyPostCard";
@@ -15,6 +17,37 @@ const Profile: React.FC = () => {
   const [user, setUser] = useState<User>({
     ...userStore,
   });
+
+  const handleSave = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    let profilePictureUrl = user.profilePictureUrl;
+    if (file) {
+      profilePictureUrl = await uploadFile(file);
+      setUser((prev) => ({
+        ...prev,
+        profilePictureUrl,
+      }));
+    }
+    try {
+      const { error } = await supabase
+        .from("users")
+        .update({
+          display_name: user.displayName,
+          bio: user.bio,
+          profile_picture_url: profilePictureUrl,
+        })
+        .eq("id", user.id);
+
+      if (error) {
+        console.error("Error updating user:", error);
+      } else {
+        console.log("User updated successfully");
+        store.dispatch(updateUser(user));
+      }
+    } catch (err) {
+      console.error("Error in handleSave:", err);
+    }
+  };
 
   const handleBack = () => {
     console.log("Back button clicked");

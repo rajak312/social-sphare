@@ -2,16 +2,20 @@ import React, { FC, useState, ChangeEvent, useEffect } from "react";
 import { withDefaultLayout } from "../../hoc/withDefaulLayout";
 import Bin from "../../assets/bin.svg";
 import Gallary from "../../assets/gallery.svg";
+import Camera from "../../assets/camera-svgrepo.svg";
+import VideoIcon from "../../assets/video-library-svgrepo-com 1.svg";
 import { BackButton } from "../../components/BackButton";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../../supabase";
 import { useSelector } from "react-redux";
 import { RootState } from "../../store";
-import { uploadImage } from "../../utils";
+import { uploadFile } from "../../utils";
 
 const Post: FC = () => {
   const [images, setImages] = useState<{ file: File; preview: string }[]>([]);
-  const [currentIndex, setCurrentIndex] = useState<number>(0);
+  const [video, setVideo] = useState<{ file: File; preview: string } | null>(
+    null
+  );
   const [caption, setCaption] = useState<string>("");
   const userStore = useSelector((state: RootState) => state.user);
   const navigate = useNavigate();
@@ -28,10 +32,21 @@ const Post: FC = () => {
     }
 
     setImages((prev) => [...prev, ...newImages]);
-    if (images.length === 0 && newImages.length > 0) {
-      setCurrentIndex(0);
-    }
+    setVideo(null);
   };
+
+  const handleAddVideo = (e: ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    const file = files[0];
+    const videoURL = URL.createObjectURL(file);
+
+    setImages([]);
+    setVideo({ file, preview: videoURL });
+  };
+
+  const [currentIndex, setCurrentIndex] = useState<number>(0);
 
   const handleNext = () => {
     setCurrentIndex((prev) =>
@@ -54,6 +69,13 @@ const Post: FC = () => {
       setCurrentIndex((prev) =>
         prev >= updated.length ? updated.length - 1 : prev
       );
+    }
+  };
+
+  const handleDeleteVideo = () => {
+    if (video) {
+      URL.revokeObjectURL(video.preview);
+      setVideo(null);
     }
   };
 
@@ -84,7 +106,7 @@ const Post: FC = () => {
 
       if (images.length > 0) {
         const imageDataPromises = images.map(async (img) => {
-          const imageUrl = await uploadImage(img.file);
+          const imageUrl = await uploadFile(img.file);
           return {
             post_id: newPost.id,
             image_url: imageUrl,
@@ -98,11 +120,21 @@ const Post: FC = () => {
           .insert(imageData);
 
         if (imageError) {
-          console.error("Error inserting post images:", imageError);
+          return console.error("Error inserting post images:", imageError);
         }
       }
 
-      // If everything goes well, navigate back or show a success message
+      if (video) {
+        const videoUrl = await uploadFile(video.file);
+        const { error: videoError } = await supabase.from("posts").insert({
+          video_url: videoUrl,
+          user_id: userStore.id,
+        });
+
+        if (videoError) {
+          return console.error("Error inserting post video:", videoError);
+        }
+      }
       navigate("/");
     } catch (error) {
       console.error("Unexpected error:", error);
@@ -110,11 +142,11 @@ const Post: FC = () => {
   };
 
   useEffect(() => {
-    // Cleanup function to revoke object URLs
     return () => {
       images.forEach((image) => URL.revokeObjectURL(image.preview));
+      if (video) URL.revokeObjectURL(video.preview);
     };
-  }, [images]);
+  }, [images, video]);
 
   function renderImages() {
     return (
@@ -162,26 +194,110 @@ const Post: FC = () => {
     );
   }
 
+  // Render video preview
+  function renderVideo() {
+    return (
+      <div>
+        {video && (
+          <div className="relative flex flex-col items-center">
+            <div className="relative w-full h-48 bg-gray-200 rounded-md overflow-hidden flex items-center justify-center">
+              <video
+                src={video.preview}
+                controls
+                className="object-cover w-full rounded-lg shadow-xl h-full"
+              />
+
+              <button
+                onClick={handleDeleteVideo}
+                className="absolute bottom-2 right-2"
+              >
+                <img src={Bin} alt="Delete" />
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // Render media previews
+  function renderMediaPreview() {
+    return images.length > 0 ? renderImages() : renderVideo();
+  }
+
+  // Render upload options conditionally
+  function renderOptions() {
+    // Hide options if either images or video are already selected
+    if (images.length > 0 || video) return null;
+
+    return (
+      <>
+        <div className="flex items-center">
+          <label className="flex items-center gap-2 text-gray-700 cursor-pointer">
+            <img src={Gallary} alt="Add Photos" />
+            <span className="font-bold">Photos</span>
+            <input
+              type="file"
+              multiple
+              className="hidden"
+              onChange={handleAddImages}
+              accept="image/*"
+            />
+          </label>
+        </div>
+
+        <div className="flex items-center">
+          <label className="flex items-center gap-2 text-gray-700 cursor-pointer">
+            <img src={VideoIcon} alt="Add Video" />
+            <span className="font-bold">Video</span>
+            <input
+              type="file"
+              className="hidden"
+              onChange={handleAddVideo}
+              accept="video/*"
+            />
+          </label>
+        </div>
+
+        <div className="flex items-center">
+          <label className="flex items-center gap-2 text-gray-700 cursor-pointer">
+            <img src={Camera} alt="Add Camera Photo" />
+            <span className="font-bold">Camera</span>
+            <input
+              type="file"
+              multiple
+              className="hidden"
+              onChange={handleAddImages}
+              accept="image/*"
+            />
+          </label>
+        </div>
+      </>
+    );
+  }
+
   return (
     <div className="bg-white h-full">
       <div className="h-[80%]">
         <BackButton onBack={handleBack} title="New Post" />
         <div className="flex flex-col p-6 justify-between h-full">
           <div className="flex flex-col gap-4">
-            {renderImages()}
-            <div className="flex items-center">
-              <label className="flex items-center gap-2 text-gray-700 cursor-pointer">
-                <img src={Gallary} alt="Add Gallery" />
-                <span className="font-bold">Add more Photos</span>
-                <input
-                  type="file"
-                  multiple
-                  className="hidden"
-                  onChange={handleAddImages}
-                  accept="image/*"
-                />
-              </label>
-            </div>
+            {renderMediaPreview()}
+            {!!images.length && (
+              <div className="flex items-center">
+                <label className="flex items-center gap-2 text-gray-700 cursor-pointer">
+                  <img src={Gallary} alt="Add Gallery" />
+                  <span className="font-bold">Add more Photos</span>
+                  <input
+                    type="file"
+                    multiple
+                    className="hidden"
+                    onChange={handleAddImages}
+                    accept="image/*"
+                  />
+                </label>
+              </div>
+            )}
 
             <textarea
               placeholder="Surrounded by nature’s beauty, finding peace in every leaf, breeze, and sunset. 🌿🌍 #NatureVibes #OutdoorEscape #EarthLover"
@@ -191,14 +307,14 @@ const Post: FC = () => {
                 setCaption(e.target.value)
               }
             />
-            {/* Remove or style the camera button as needed */}
-            {/* <button>camera</button> */}
+
+            {renderOptions()}
           </div>
 
           <button
             className="bg-black w-full p-2 rounded-full text-white font-semibold"
             onClick={handleCreatePost}
-            disabled={caption.trim() === "" && images.length === 0}
+            disabled={caption.trim() === "" && images.length === 0 && !video}
           >
             CREATE
           </button>

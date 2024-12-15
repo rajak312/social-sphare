@@ -43,8 +43,7 @@ const Profile: React.FC = () => {
     <div className="w-full h-full ">
       <NavLink
         to="/post"
-        className="flex absolute justify-center items-center bottom-10 ml-72 h-10 w-10 rounded-full bg-black text-white"
-      >
+        className="flex absolute justify-center items-center bottom-10 ml-72 h-10 w-10 rounded-full bg-black text-white">
         <IoMdAdd className="text-2xl" />
       </NavLink>
       <div className="w-full  relative">
@@ -59,8 +58,7 @@ const Profile: React.FC = () => {
         </div>
         <NavLink
           to="/profile/edit"
-          className="absolute right-10 rounded-full  -bottom-10 border-gray-400 border w-[200px] flex justify-center items-center font-medium"
-        >
+          className="absolute right-10 rounded-full  -bottom-10 border-gray-400 border w-[200px] flex justify-center items-center font-medium">
           Edit Profile
         </NavLink>
         <div className="absolute -bottom-10 left-5">
@@ -81,7 +79,14 @@ const Profile: React.FC = () => {
         <div className="space-y-4">
           <h1 className="font-medium text-xl">My Posts</h1>
           <div className="grid grid-cols-2 gap-4">
-            <MyPostCard />
+            {posts.map((item, idx) => (
+              <MyPostCard
+                key={idx}
+                post_images={item.post_images}
+                text={item.text ?? "No description"} // Fallback to "No description" if text is null
+                likes={item.likes}
+              />
+            ))}
           </div>
         </div>
       </div>

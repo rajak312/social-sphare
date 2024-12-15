@@ -4,9 +4,15 @@ import { FaHeart } from "react-icons/fa";
 import { RootState } from "../store";
 import { RiSendPlaneFill } from "react-icons/ri";
 import SharePopup from "./SharePopup";
+import { Like, PostWithRelations } from "../utils/types";
+import { supabase } from "../supabase";
 
-const FeedCard = () => {
-  const { displayName, profilePictureUrl } = useSelector(
+export interface FeedCardProps {
+  post: PostWithRelations;
+}
+
+const FeedCard = ({ post }: FeedCardProps) => {
+  const { displayName, profilePictureUrl, id } = useSelector(
     (state: RootState) => state.user
   );
 
@@ -14,9 +20,53 @@ const FeedCard = () => {
   const [isLiked, setIsLiked] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const handleLike = () => {
-    setLikes((prevLikes) => prevLikes + (isLiked ? -1 : 1));
-    setIsLiked((prevIsLiked) => !prevIsLiked);
+  const toggleLike = async () => {
+    try {
+      const { data: existingLike, error: fetchError } = await supabase
+        .from("likes")
+        .select("id")
+        .eq("post_id", post.id)
+        .eq("user_id", id)
+        .single();
+
+      if (fetchError) {
+        if (fetchError.code === "PGRST116") {
+        } else {
+          console.error("Error fetching like:", fetchError.message);
+          throw fetchError;
+        }
+      }
+
+      if (existingLike) {
+        const { error: deleteError } = await supabase
+          .from("likes")
+          .delete()
+          .eq("post_id", post.id)
+          .eq("user_id", id);
+
+        if (deleteError) {
+          console.error("Error removing like:", deleteError.message);
+          throw deleteError;
+        }
+
+        return { liked: false };
+      } else {
+        const { data: newLike, error: insertError } = await supabase
+          .from("likes")
+          .insert([{ post_id: post.id, user_id: id }])
+          .single();
+
+        if (insertError) {
+          console.error("Error adding like:", insertError.message);
+          throw insertError;
+        }
+
+        return { liked: true, like: newLike };
+      }
+    } catch (error) {
+      console.error("Unexpected error in toggleLike:", error);
+      throw error;
+    }
   };
 
   const handleShareClick = () => {
@@ -51,17 +101,19 @@ const FeedCard = () => {
       </div>
       <div className="flex items-center justify-between">
         <button
-          onClick={handleLike}
+          onClick={toggleLike}
           className={`flex items-center gap-2 font-medium ${
             isLiked ? "text-pink-700" : "text-gray-500"
-          }`}>
+          }`}
+        >
           <FaHeart />
-          {likes}
+          {post.likes.length}
         </button>
         <div>
           <button
             onClick={handleShareClick}
-            className="font-semibold flex items-center gap-2 bg-gray-200 rounded-full px-4 py-1">
+            className="font-semibold flex items-center gap-2 bg-gray-200 rounded-full px-4 py-1"
+          >
             <RiSendPlaneFill className="text-lg" />
             Share
           </button>

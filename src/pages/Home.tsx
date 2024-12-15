@@ -4,12 +4,14 @@ import { withDefaultLayout } from "../hoc/withDefaulLayout";
 import { RootState } from "../store";
 import FeedCard from "../components/FeedCard";
 import { supabase } from "../supabase";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { PostWithRelations } from "../utils/types";
 
 function Home() {
   const { displayName, profilePictureUrl } = useSelector(
     (state: RootState) => state.user
   );
+  const [posts, setPosts] = useState<PostWithRelations[]>([]);
 
   useEffect(() => {
     (async () => {
@@ -18,6 +20,7 @@ function Home() {
     post_images(*),
     likes(*)
   `);
+      setPosts(data as PostWithRelations[]);
       console.log("data", data);
     })();
   }, []);
@@ -37,7 +40,9 @@ function Home() {
           </div>
         </div>
         <div className="space-y-4">
-          <FeedCard />
+          {posts.map((post) => (
+            <FeedCard post={post} />
+          ))}
         </div>
       </div>
     </div>

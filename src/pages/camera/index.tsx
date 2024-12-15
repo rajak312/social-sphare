@@ -66,7 +66,7 @@ const Camera: React.FC = () => {
 
   return (
     <div className="flex flex-col items-center gap-4 border p-4 rounded-md max-w-sm mx-auto mt-10">
-      {/* If camera not open and no image captured */}
+     
       {!isCameraOpen && !capturedImage && (
         <button
           className="border border-gray-300 rounded-full px-4 py-2 hover:bg-gray-100"

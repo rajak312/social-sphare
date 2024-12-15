@@ -61,8 +61,7 @@ const CameraComponent: React.FC<CameraComponentProps> = ({ onCapture }) => {
       {!isCameraOpen && (
         <button
           className="border border-gray-300 rounded-full px-4 py-2 hover:bg-gray-100"
-          onClick={openCamera}
-        >
+          onClick={openCamera}>
           Open Camera
         </button>
       )}
@@ -92,16 +91,14 @@ const CameraComponent: React.FC<CameraComponentProps> = ({ onCapture }) => {
             {!capturedImage && (
               <button
                 className="border border-gray-300 rounded-full px-4 py-2 hover:bg-gray-100"
-                onClick={captureImage}
-              >
+                onClick={captureImage}>
                 Capture
               </button>
             )}
 
             <button
               className="border border-gray-300 rounded-full px-4 py-2 hover:bg-gray-100"
-              onClick={closeCamera}
-            >
+              onClick={closeCamera}>
               Close Camera
             </button>
           </div>

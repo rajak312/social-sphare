@@ -4,36 +4,74 @@ import { supabase } from "../supabase";
 const AddUser: React.FC = () => {
   const [displayName, setDisplayName] = useState<string>("");
   const [bio, setBio] = useState<string>("");
-  const [profilePictureUrl, setProfilePictureUrl] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [message, setMessage] = useState<string>("");
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState<boolean>(false);
+  const bucketName = import.meta.env.VITE_SUPABASE_BUCKET_NAME;
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    setSelectedFile(file);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setMessage("");
+    setUploading(true);
+
+    let profilePictureUrl = "";
 
     try {
-      const { data, error } = await supabase.from("users").insert([
+      // If a file is selected, upload it
+      if (selectedFile && email) {
+        const fileExt = selectedFile.name.split(".").pop();
+        const fileName = `${email.replace(
+          /[^a-zA-Z0-9]/g,
+          "_"
+        )}_${Date.now()}.${fileExt}`;
+        const { error: uploadError } = await supabase.storage
+          .from(bucketName)
+          .upload(fileName, selectedFile);
+
+        if (uploadError) {
+          throw uploadError;
+        }
+
+        // Get Public URL
+        const { data: publicUrlData } = supabase.storage
+          .from(bucketName)
+          .getPublicUrl(fileName);
+
+        if (publicUrlData) {
+          profilePictureUrl = publicUrlData.publicUrl;
+        }
+      }
+
+      // Insert the user record
+      const { error: insertError } = await supabase.from("users").insert([
         {
           display_name: displayName,
           bio: bio,
-          profile_picture_url: profilePictureUrl,
+          profile_picture_url: profilePictureUrl, // Will be empty string if no file uploaded
           email: email,
         },
       ]);
 
-      if (error) {
-        throw error;
+      if (insertError) {
+        throw insertError;
       }
 
-      setMessage(`User added successfully`);
+      setMessage("User added successfully");
       setDisplayName("");
       setBio("");
-      setProfilePictureUrl("");
       setEmail("");
+      setSelectedFile(null);
     } catch (error) {
       console.error("Error adding user: ", error);
       setMessage("Error adding user");
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -95,27 +133,6 @@ const AddUser: React.FC = () => {
           <label
             style={{ display: "block", marginBottom: "5px", color: "#555" }}
           >
-            Profile Picture URL:
-            <input
-              type="url"
-              value={profilePictureUrl}
-              onChange={(e) => setProfilePictureUrl(e.target.value)}
-              style={{
-                width: "100%",
-                padding: "8px",
-                boxSizing: "border-box",
-                borderRadius: "4px",
-                border: "1px solid #ccc",
-              }}
-              placeholder="https://example.com/my-picture.jpg"
-            />
-          </label>
-        </div>
-
-        <div style={{ marginBottom: "15px" }}>
-          <label
-            style={{ display: "block", marginBottom: "5px", color: "#555" }}
-          >
             Email:
             <input
               type="email"
@@ -134,19 +151,37 @@ const AddUser: React.FC = () => {
           </label>
         </div>
 
+        <div style={{ marginBottom: "15px" }}>
+          <label
+            style={{ display: "block", marginBottom: "5px", color: "#555" }}
+          >
+            Profile Picture:
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleFileChange}
+              style={{
+                marginTop: "5px",
+                display: "block",
+              }}
+            />
+          </label>
+        </div>
+
         <button
           type="submit"
+          disabled={uploading}
           style={{
             width: "100%",
             padding: "10px",
-            backgroundColor: "#007BFF",
+            backgroundColor: uploading ? "#ccc" : "#007BFF",
             color: "#fff",
             border: "none",
             borderRadius: "4px",
-            cursor: "pointer",
+            cursor: uploading ? "not-allowed" : "pointer",
           }}
         >
-          Add User
+          {uploading ? "Uploading..." : "Add User"}
         </button>
       </form>
       {message && (

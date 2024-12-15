@@ -3,7 +3,7 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 export interface User {
   id: string | null;
   email: string | null;
-  display_name: string | null;
+  displayName: string | null;
   bio: string | null;
   profilePictureUrl: string | null;
 }
@@ -11,7 +11,7 @@ export interface User {
 const initialState: User = {
   id: null,
   email: null,
-  display_name: null,
+  displayName: null,
   bio: null,
   profilePictureUrl: null,
 };
@@ -21,7 +21,7 @@ if (savedUser) {
   const parsedUser: Partial<User> = JSON.parse(savedUser);
   initialState.id = parsedUser.id || null;
   initialState.email = parsedUser.email || null;
-  initialState.display_name = parsedUser.display_name || null;
+  initialState.displayName = parsedUser.displayName || null;
   initialState.bio = parsedUser.bio || null;
   initialState.profilePictureUrl = parsedUser.profilePictureUrl || null;
 }
@@ -33,14 +33,14 @@ const userSlice = createSlice({
     loginUser(state, action: PayloadAction<User>) {
       state.id = action.payload.id;
       state.email = action.payload.email;
-      state.display_name = action.payload.display_name;
+      state.displayName = action.payload.displayName;
       state.bio = action.payload.bio || null;
       state.profilePictureUrl = action.payload.profilePictureUrl || null;
       localStorage.setItem("loggedInUser", JSON.stringify(state));
     },
     updateUser(state, action: PayloadAction<User>) {
-      if (action.payload.display_name !== undefined) {
-        state.display_name = action.payload.display_name;
+      if (action.payload.displayName !== undefined) {
+        state.displayName = action.payload.displayName;
       }
       if (action.payload.bio !== undefined) {
         state.bio = action.payload.bio;
@@ -53,7 +53,7 @@ const userSlice = createSlice({
     logoutUser(state) {
       state.id = null;
       state.email = null;
-      state.display_name = null;
+      state.displayName = null;
       state.bio = null;
       state.profilePictureUrl = null;
       localStorage.removeItem("loggedInUser");

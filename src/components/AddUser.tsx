@@ -51,7 +51,7 @@ const AddUser: React.FC = () => {
       // Insert the user record
       const { error: insertError } = await supabase.from("users").insert([
         {
-          display_name: displayName,
+          displayName: displayName,
           bio: bio,
           profile_picture_url: profilePictureUrl, // Will be empty string if no file uploaded
           email: email,

@@ -7,9 +7,16 @@ import { onAuthStateChanged, User as FirebaseUser } from "firebase/auth";
 import LogIn from "../components/Auth/LogIn";
 import { auth } from "../firebase";
 import { supabase } from "../supabase";
-import { User } from "../store/userSlice";
 
 interface WithAuthProps {}
+
+export interface SupabaseUser {
+  id: string | null;
+  email: string | null;
+  display_name: string | null;
+  bio: string | null;
+  profile_picture_url: string | null;
+}
 
 function withAuth<T extends object>(WrappedComponent: React.ComponentType<T>) {
   const WithAuth: React.FC<T & WithAuthProps> = (props) => {
@@ -39,9 +46,9 @@ function withAuth<T extends object>(WrappedComponent: React.ComponentType<T>) {
                   loginUser({
                     id: supabaseUser.id,
                     email: supabaseUser.email,
-                    display_name: supabaseUser.display_name,
+                    displayName: supabaseUser.display_name,
                     bio: supabaseUser.bio,
-                    profilePictureUrl: supabaseUser.profilePictureUrl,
+                    profilePictureUrl: supabaseUser.profile_picture_url,
                   })
                 );
                 setShowLoginModal(false);
@@ -65,7 +72,7 @@ function withAuth<T extends object>(WrappedComponent: React.ComponentType<T>) {
       email: string,
       displayName: string,
       profilePictureUrl?: string | null
-    ): Promise<User | null> => {
+    ): Promise<SupabaseUser | null> => {
       try {
         const { data: existingUsers, error: selectError } = await supabase
           .from("users")
@@ -102,10 +109,10 @@ function withAuth<T extends object>(WrappedComponent: React.ComponentType<T>) {
           }
 
           if (insertedData && insertedData.length > 0) {
-            return insertedData[0] as User;
+            return insertedData[0] as SupabaseUser;
           }
         } else {
-          return existingUsers[0] as User;
+          return existingUsers[0] as SupabaseUser;
         }
       } catch (error) {
         console.error("Unexpected error ensuring user in Supabase:", error);

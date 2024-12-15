@@ -28,9 +28,9 @@ const EditProfile: React.FC = () => {
       const { error } = await supabase
         .from("users")
         .update({
-          display_name: user.display_name,
+          displayName: user.displayName,
           bio: user.bio,
-          profilePictureUrl,
+          profile_picture_url: profilePictureUrl,
         })
         .eq("id", user.id);
 
@@ -50,7 +50,7 @@ const EditProfile: React.FC = () => {
   };
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setUser({ ...user, display_name: e.target.value });
+    setUser({ ...user, displayName: e.target.value });
   };
 
   const handleBioChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -80,7 +80,7 @@ const EditProfile: React.FC = () => {
             id="name"
             type="text"
             className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:border-black"
-            value={user.display_name || ""}
+            value={user.displayName || ""}
             onChange={handleNameChange}
           />
         </div>

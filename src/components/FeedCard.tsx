@@ -4,20 +4,29 @@ import { FaHeart } from "react-icons/fa";
 import { RootState } from "../store";
 import { RiSendPlaneFill } from "react-icons/ri";
 import SharePopup from "./SharePopup";
-import { PostWithRelations } from "../utils/types";
+import { PostWithRelations, User } from "../utils/types";
 import { supabase } from "../supabase";
+import { getUser } from "../utils";
 
 export interface FeedCardProps {
   post: PostWithRelations;
 }
 
 const FeedCard = ({ post }: FeedCardProps) => {
+  const [postUser, setPostUser] = useState<User | undefined>();
   const { displayName, profilePictureUrl, id } = useSelector(
     (state: RootState) => state.user
   );
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [timeAgo, setTimeAgo] = useState("");
   const isLiked = !!post.likes.find((user) => user.id === id);
+
+  useEffect(() => {
+    (async () => {
+      const user = await getUser(post.user_id);
+      setPostUser(user);
+    })();
+  }, [post.user_id]);
 
   const toggleLike = async () => {
     try {
@@ -110,12 +119,12 @@ const FeedCard = ({ post }: FeedCardProps) => {
     <div className="w-full h-[341px] bg-purple-50 shadow hover:shadow-xl border flex flex-col justify-between rounded-lg p-4 transition-all duration-300">
       <div className="flex items-center gap-2">
         <img
-          src={profilePictureUrl ?? undefined}
+          src={postUser?.profile_picture_url ?? undefined}
           alt=""
           className="w-10 h-10 rounded-full"
         />
         <div>
-          <h6 className="font-semibold">{displayName}</h6>
+          <h6 className="font-semibold">{postUser?.display_name}</h6>
           <small>{timeAgo}</small>
         </div>
       </div>
@@ -130,14 +139,16 @@ const FeedCard = ({ post }: FeedCardProps) => {
           onClick={toggleLike}
           className={`flex items-center gap-2 font-medium ${
             isLiked ? "text-pink-700" : "text-gray-500"
-          }`}>
+          }`}
+        >
           <FaHeart />
           {post.likes.length}
         </button>
         <div>
           <button
             onClick={handleShareClick}
-            className="font-semibold flex items-center gap-2 bg-gray-200 rounded-full px-4 py-1">
+            className="font-semibold flex items-center gap-2 bg-gray-200 rounded-full px-4 py-1"
+          >
             <RiSendPlaneFill className="text-lg" />
             Share
           </button>

@@ -1,4 +1,5 @@
 import { supabase } from "../supabase";
+import { User } from "./types";
 const bucketName = import.meta.env.VITE_SUPABASE_BUCKET_NAME;
 
 export async function uploadImage(file: File): Promise<string | null> {
@@ -38,5 +39,21 @@ export async function uploadImage(file: File): Promise<string | null> {
   } catch (err) {
     console.error("Unexpected error:", err);
     return null;
+  }
+}
+
+export async function getUser(id: string) {
+  try {
+    const { data, error } = await supabase
+      .from("users")
+      .select("*")
+      .eq("id", id)
+      .limit(1);
+    if (error) {
+      console.error("Error in fetchin user", error);
+    }
+    return data?.[0] as User;
+  } catch (error) {
+    console.error("Error in Fetcing the data", error);
   }
 }

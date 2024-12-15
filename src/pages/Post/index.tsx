@@ -166,8 +166,7 @@ const Post: FC = () => {
 
               <button
                 onClick={handleDeleteCurrentImage}
-                className="absolute bottom-2 right-2"
-              >
+                className="absolute bottom-2 right-2">
                 <img src={Bin} alt="Delete" />
               </button>
 
@@ -175,14 +174,12 @@ const Post: FC = () => {
                 <>
                   <button
                     onClick={handlePrev}
-                    className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/70 hover:bg-white text-gray-900 p-1 rounded-full shadow"
-                  >
+                    className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/70 hover:bg-white text-gray-900 p-1 rounded-full shadow">
                     ‹
                   </button>
                   <button
                     onClick={handleNext}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/70 hover:bg-white text-gray-900 p-1 rounded-full shadow"
-                  >
+                    className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/70 hover:bg-white text-gray-900 p-1 rounded-full shadow">
                     ›
                   </button>
                 </>
@@ -208,8 +205,7 @@ const Post: FC = () => {
 
               <button
                 onClick={handleDeleteVideo}
-                className="absolute bottom-2 right-2"
-              >
+                className="absolute bottom-2 right-2">
                 <img src={Bin} alt="Delete" />
               </button>
             </div>
@@ -273,7 +269,7 @@ const Post: FC = () => {
   }
 
   return (
-    <div className="bg-white h-full">
+    <div className="bg-white p-4 h-full">
       <div className="h-[80%]">
         <BackButton onBack={handleBack} title="New Post" />
         <div className="flex flex-col p-6 justify-between h-full">
@@ -310,8 +306,7 @@ const Post: FC = () => {
           <button
             className="bg-black w-full p-2 rounded-full text-white font-semibold"
             onClick={handleCreatePost}
-            disabled={caption.trim() === "" && images.length === 0 && !video}
-          >
+            disabled={caption.trim() === "" && images.length === 0 && !video}>
             CREATE
           </button>
         </div>

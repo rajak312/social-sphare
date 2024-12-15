@@ -20,7 +20,7 @@ const Profile: React.FC = () => {
   };
 
   return (
-    <div className="w-full h-full bg-white">
+    <div className="w-full h-full ">
       <NavLink
         to="/post"
         className="flex absolute justify-center items-center bottom-10 ml-72 h-10 w-10 rounded-full bg-black text-white">

@@ -150,16 +150,14 @@ const FeedCard = ({ post, refetch }: FeedCardProps) => {
           onClick={toggleLike}
           className={`flex items-center gap-2 font-medium ${
             isLiked ? "text-pink-700" : "text-gray-500"
-          }`}
-        >
+          }`}>
           <FaHeart />
           {post.likes.length}
         </button>
         <div>
           <button
             onClick={handleShareClick}
-            className="font-semibold flex items-center gap-2 bg-gray-200 rounded-full px-4 py-1"
-          >
+            className="font-semibold flex items-center gap-2 bg-gray-200 rounded-full px-4 py-1">
             <RiSendPlaneFill className="text-lg" />
             Share
           </button>

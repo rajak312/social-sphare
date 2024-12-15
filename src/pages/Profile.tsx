@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { BackButton } from "../components/BackButton";
 import { withDefaultLayout } from "../hoc/withDefaulLayout";
 import { RootState } from "../store";
@@ -8,12 +8,32 @@ import { NavLink, useNavigate } from "react-router-dom";
 import MyPostCard from "../components/MyPostCard";
 import withAuth from "../hoc/withAuth";
 import { IoMdAdd } from "react-icons/io";
+import { PostWithRelations } from "../utils/types";
+import { supabase } from "../supabase";
 
 const Profile: React.FC = () => {
-  const { profilePictureUrl, displayName, bio, backgroundImage } = useSelector(
-    (state: RootState) => state.user
-  );
+  const { profilePictureUrl, displayName, bio, backgroundImage, id } =
+    useSelector((state: RootState) => state.user);
   const navigate = useNavigate();
+  const [posts, setPosts] = useState<PostWithRelations[]>([]);
+
+  async function fetchPosts() {
+    const { data, error } = await supabase
+      .from("posts")
+      .select(
+        `
+    *,
+    post_images(*),
+    likes(*)
+  `
+      )
+      .eq("user_id", id);
+    setPosts(data as PostWithRelations[]);
+  }
+
+  useEffect(() => {
+    fetchPosts();
+  }, [id]);
 
   const handleBack = () => {
     navigate("/");

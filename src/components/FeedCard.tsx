@@ -127,14 +127,20 @@ const FeedCard = ({ post, refetch }: FeedCardProps) => {
         </div>
       </div>
       <small className="text-ellipsis line-clamp-3">{post.text}</small>
-      <div className="overflow-x-auto flex h-[167px]">
+      <div
+        className={`overflow-x-auto flex w-full h-[167px] ${
+          post.post_images && post.post_images.length === 1
+            ? "justify-center" // Single image, center it
+            : "gap-x-4" // Multiple images, add horizontal gap
+        }`}>
         {post.post_images?.map((img, idx) => (
           <img
             key={idx}
             src={img.image_url ?? undefined}
             alt=""
-            width={200}
-            className="w-max"
+            className={`${
+              post.post_images.length === 1 ? "w-full" : "w-max"
+            } object-cover rounded-lg`} // Add rounded corners
           />
         ))}
         {post.video_url && (

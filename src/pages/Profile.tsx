@@ -43,7 +43,7 @@ const Profile: React.FC = () => {
     <div className="w-full h-full ">
       <NavLink
         to="/post"
-        className="flex absolute justify-center items-center bottom-10 ml-72 h-10 w-10 rounded-full bg-black text-white">
+        className="flex z-50 absolute justify-center items-center bottom-10 ml-72 h-10 w-10 rounded-full bg-black text-white">
         <IoMdAdd className="text-2xl" />
       </NavLink>
       <div className="w-full  relative">

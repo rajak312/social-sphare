@@ -12,18 +12,19 @@ interface PostPops {
 const MyPostCard = ({ post_images, text, likes }: PostPops) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-  // Handler to update the image index when the slide changes
   const handleSlideChange = (swiper: any) => {
     setCurrentImageIndex(swiper.realIndex);
   };
 
   return (
-    <div className="w-full h-full min-h-[200px] max-h-[240px] bg-white border shadow-xl overflow-hidden rounded-xl relative">
-      <div className="absolute z-50 top-4 right-0 transform -translate-x-1/2 text-white font-bold bg-black bg-opacity-50 px-2  rounded-md">
-        <small>
-          {currentImageIndex + 1} / {post_images.length}
-        </small>
-      </div>
+    <div className="w-full h-full min-h-max max-h-min bg-white border shadow-xl overflow-hidden rounded-xl relative">
+      {post_images.length > 1 && ( // Only show the count if there are multiple images
+        <div className="absolute z-50 top-4 right-0 transform -translate-x-1/2 text-white font-bold bg-black bg-opacity-50 px-2 rounded-md">
+          <small>
+            {currentImageIndex + 1} / {post_images.length}
+          </small>
+        </div>
+      )}
 
       <Swiper
         spaceBetween={10}

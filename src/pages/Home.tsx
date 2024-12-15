@@ -33,8 +33,7 @@ function Home() {
     <div className=" h-full ">
       <NavLink
         to="/post"
-        className="flex absolute justify-center items-center bottom-10 ml-72 h-10 w-10 rounded-full bg-black text-white"
-      >
+        className="flex absolute justify-center items-center bottom-10 ml-72 h-10 w-10 rounded-full bg-black text-white">
         <IoMdAdd className="text-2xl" />
       </NavLink>
       <div className="h-full w-full flex flex-col gap-6">
@@ -42,7 +41,7 @@ function Home() {
           <img
             src={profilePictureUrl ?? "fallback-image-url.jpg"}
             alt=""
-            className="w-14 h-14 rounded-full"
+            className="w-14 h-14 object-cover rounded-full"
           />
           <div>
             <small>Welcome Back,</small>

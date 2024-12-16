@@ -4,38 +4,80 @@ import { withDefaultLayout } from "../hoc/withDefaulLayout";
 import { RootState } from "../store";
 import FeedCard from "../components/FeedCard";
 import { supabase } from "../supabase";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { PostWithRelations } from "../utils/types";
 import { NavLink } from "react-router-dom";
 import { IoMdAdd } from "react-icons/io";
-import In from "../components/Auth/Login";
 
 function Home() {
   const { displayName, profilePictureUrl } = useSelector(
     (state: RootState) => state.user
   );
   const [posts, setPosts] = useState<PostWithRelations[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [hasMore, setHasMore] = useState<boolean>(true);
+  const [page, setPage] = useState<number>(1);
+  const scrollRef = useRef<HTMLDivElement | null>(null);
 
-  async function fetchPosts() {
-    const { data, error } = await supabase
-      .from("posts")
-      .select(
+  const fetchPosts = useCallback(
+    async (pageNumber: number) => {
+      if (loading || !hasMore) return;
+
+      setLoading(true);
+      const pageSize = 20;
+
+      const { data, error } = await supabase
+        .from("posts")
+        .select(
+          `
+          *,
+          post_images(*),
+          likes(*)
         `
-    *,
-    post_images(*),
-    likes(*)
-  `
-      )
-      .order("updated_at", { ascending: false });
-    setPosts(data as PostWithRelations[]);
-  }
+        )
+        .order("updated_at", { ascending: false })
+        .range((pageNumber - 1) * pageSize, pageNumber * pageSize - 1);
+
+      if (error) {
+        console.error("Error fetching posts:", error.message);
+      } else {
+        setPosts((prevPosts) => [
+          ...prevPosts,
+          ...(data as PostWithRelations[]),
+        ]);
+        if (data && data.length < pageSize) {
+          setHasMore(false);
+        }
+      }
+      setLoading(false);
+    },
+    [loading, hasMore]
+  );
 
   useEffect(() => {
-    fetchPosts();
-  }, []);
+    fetchPosts(page);
+  }, [fetchPosts, page]);
+
+  const handleScroll = useCallback(
+    (e: React.UIEvent<HTMLDivElement>) => {
+      if (!scrollRef.current) return;
+      const bottom =
+        e.currentTarget.scrollHeight ===
+        e.currentTarget.scrollTop + e.currentTarget.clientHeight;
+
+      if (bottom && hasMore && !loading) {
+        setPage((prevPage) => prevPage + 1);
+      }
+    },
+    [hasMore, loading]
+  );
 
   return (
-    <div className=" h-full p-4 ">
+    <div
+      ref={scrollRef}
+      className="h-full p-4 overflow-y-auto"
+      onScroll={handleScroll}
+    >
       <NavLink
         to="/post"
         className="flex absolute justify-center items-center bottom-10 ml-72 h-10 w-10 rounded-full bg-black text-white"
@@ -56,10 +98,20 @@ function Home() {
         </NavLink>
         <h1 className="font-bold text-2xl">Feeds</h1>
         <div className="space-y-4">
-          {posts.map((post, idx) => (
-            <FeedCard key={idx} post={post} refetch={fetchPosts} />
+          {posts.map((post) => (
+            <FeedCard
+              key={post.id}
+              post={post}
+              refetch={() => fetchPosts(page)}
+            />
           ))}
         </div>
+        {loading && (
+          <div className="text-center py-4">Loading more posts...</div>
+        )}
+        {!hasMore && !loading && (
+          <div className="text-center py-4">No more posts to load.</div>
+        )}
       </div>
     </div>
   );

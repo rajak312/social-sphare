@@ -18,7 +18,6 @@ const FeedCard = ({ post, refetch }: FeedCardProps) => {
   const { id } = useSelector((state: RootState) => state.user);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [timeAgo, setTimeAgo] = useState("");
-  const isLiked = !!post.likes.find((user) => user.id === id);
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
   useEffect(() => {
@@ -27,58 +26,6 @@ const FeedCard = ({ post, refetch }: FeedCardProps) => {
       setPostUser(user);
     })();
   }, [post.user_id]);
-
-  const toggleLike = async () => {
-    try {
-      const { data: existingLike, error: fetchError } = await supabase
-        .from("likes")
-        .select("id")
-        .eq("post_id", post.id)
-        .eq("user_id", id)
-        .single();
-
-      if (fetchError && fetchError.code !== "PGRST116") {
-        console.error("Error fetching like:", fetchError.message);
-        throw fetchError;
-      }
-
-      if (existingLike) {
-        const { error: deleteError } = await supabase
-          .from("likes")
-          .delete()
-          .eq("post_id", post.id)
-          .eq("user_id", id);
-
-        if (deleteError) {
-          console.error("Error removing like:", deleteError.message);
-          throw deleteError;
-        }
-      } else {
-        const { data: newLike, error: insertError } = await supabase
-          .from("likes")
-          .insert([{ post_id: post.id, user_id: id }])
-          .single();
-        if (insertError) {
-          console.error("Error adding like:", insertError.message);
-          throw insertError;
-        }
-      }
-      refetch?.();
-    } catch (error) {
-      console.error("Unexpected error in toggleLike:", error);
-      throw error;
-    }
-  };
-
-  const handleShareClick = () => {
-    setIsModalOpen(true);
-  };
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-  };
-
-  const url = window.location.href;
 
   const calculateTimeAgo = (timestamp: string) => {
     const now = new Date();
@@ -112,22 +59,17 @@ const FeedCard = ({ post, refetch }: FeedCardProps) => {
 
     if (!video) return;
 
-    // Add a 'muted' attribute to allow autoplay in browsers like Chrome
     video.muted = true;
 
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          // Play video when at least 50% visible
-          video.play().catch((err) => {
-            console.error("Error playing video:", err);
-          });
+          video.play().catch(() => {});
         } else {
-          // Pause video when it exits the viewport
           video.pause();
         }
       },
-      { threshold: 0.5 } // Video is considered visible when 50% of it is in the viewport
+      { threshold: 0.5 }
     );
 
     observer.observe(video);
@@ -136,6 +78,55 @@ const FeedCard = ({ post, refetch }: FeedCardProps) => {
       observer.disconnect();
     };
   }, [videoRef]);
+
+  const toggleLike = async () => {
+    try {
+      const { data: existingLike, error: fetchError } = await supabase
+        .from("likes")
+        .select("id")
+        .eq("post_id", post.id)
+        .eq("user_id", id)
+        .single();
+
+      if (fetchError && fetchError.code !== "PGRST116") {
+        throw new Error(fetchError.message);
+      }
+
+      if (existingLike) {
+        const { error: deleteError } = await supabase
+          .from("likes")
+          .delete()
+          .eq("post_id", post.id)
+          .eq("user_id", id);
+
+        if (deleteError) {
+          throw new Error(deleteError.message);
+        }
+      } else {
+        const { error: insertError } = await supabase
+          .from("likes")
+          .insert([{ post_id: post.id, user_id: id }])
+          .single();
+
+        if (insertError) {
+          throw new Error(insertError.message);
+        }
+      }
+      refetch?.();
+    } catch (error) {
+      console.error("Unexpected error in toggleLike:", error);
+    }
+  };
+
+  const handleShareClick = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
+  const url = window.location.href;
 
   return (
     <div className="w-full h-[341px] bg-purple-50 shadow hover:shadow-xl border flex flex-col justify-between rounded-lg p-4 transition-all duration-300">
@@ -154,8 +145,8 @@ const FeedCard = ({ post, refetch }: FeedCardProps) => {
       <div
         className={`overflow-x-auto flex w-full h-[167px] ${
           post.post_images && post.post_images.length === 1
-            ? "justify-center" // Single image, center it
-            : "gap-x-4" // Multiple images, add horizontal gap
+            ? "justify-center"
+            : "gap-x-4"
         }`}
       >
         {post.post_images?.map((img, idx) => (
@@ -165,7 +156,7 @@ const FeedCard = ({ post, refetch }: FeedCardProps) => {
             alt=""
             className={`${
               post.post_images.length === 1 ? "w-full" : "w-max"
-            } object-cover rounded-lg`} // Add rounded corners
+            } object-cover rounded-lg`}
           />
         ))}
         {post.video_url && (
@@ -173,7 +164,7 @@ const FeedCard = ({ post, refetch }: FeedCardProps) => {
             ref={videoRef}
             src={post.video_url}
             className="object-cover w-full rounded-lg shadow-xl h-full"
-            controls={false} // Remove controls to ensure autoplay works smoothly
+            controls={false}
           />
         )}
       </div>
@@ -181,7 +172,9 @@ const FeedCard = ({ post, refetch }: FeedCardProps) => {
         <button
           onClick={toggleLike}
           className={`flex items-center gap-2 font-medium ${
-            isLiked ? "text-pink-700" : "text-gray-500"
+            post.likes?.find((user) => user.id === id)
+              ? "text-pink-700"
+              : "text-gray-500"
           }`}
         >
           <FaHeart />

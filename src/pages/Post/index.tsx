@@ -87,11 +87,16 @@ const Post: FC = () => {
   const handleCreatePost = async () => {
     setIsLoading(true);
     try {
+      let video_url: string | null = "";
+      if (video) {
+        video_url = await uploadFile(video.file);
+      }
       const { data: insertedPosts, error: postError } = await supabase
         .from("posts")
         .insert({
           text: caption,
           user_id: userStore.id,
+          video_url,
         })
         .select();
 
@@ -115,20 +120,6 @@ const Post: FC = () => {
           throw imageError;
         }
       }
-
-      if (video) {
-        const videoUrl = await uploadFile(video.file);
-        const { error: videoError } = await supabase
-          .from("post_videos")
-          .insert({
-            post_id: newPost.id,
-            video_url: videoUrl,
-          });
-        if (videoError) {
-          throw videoError;
-        }
-      }
-
       navigate("/");
     } catch (error) {
       console.error("Error creating post:", error);

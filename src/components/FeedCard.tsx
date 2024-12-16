@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
 import { FaHeart } from "react-icons/fa";
 import { RootState } from "../store";
@@ -15,12 +15,11 @@ export interface FeedCardProps {
 
 const FeedCard = ({ post, refetch }: FeedCardProps) => {
   const [postUser, setPostUser] = useState<User | undefined>();
-  const { displayName, profilePictureUrl, id } = useSelector(
-    (state: RootState) => state.user
-  );
+  const { id } = useSelector((state: RootState) => state.user);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [timeAgo, setTimeAgo] = useState("");
   const isLiked = !!post.likes.find((user) => user.id === id);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -38,14 +37,9 @@ const FeedCard = ({ post, refetch }: FeedCardProps) => {
         .eq("user_id", id)
         .single();
 
-      console.log("existing like", existingLike, fetchError);
-
-      if (fetchError) {
-        if (fetchError.code === "PGRST116") {
-        } else {
-          console.error("Error fetching like:", fetchError.message);
-          throw fetchError;
-        }
+      if (fetchError && fetchError.code !== "PGRST116") {
+        console.error("Error fetching like:", fetchError.message);
+        throw fetchError;
       }
 
       if (existingLike) {
@@ -113,6 +107,36 @@ const FeedCard = ({ post, refetch }: FeedCardProps) => {
     return () => clearInterval(interval);
   }, [post.created_at]);
 
+  useEffect(() => {
+    const video = videoRef.current;
+
+    if (!video) return;
+
+    // Add a 'muted' attribute to allow autoplay in browsers like Chrome
+    video.muted = true;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          // Play video when at least 50% visible
+          video.play().catch((err) => {
+            console.error("Error playing video:", err);
+          });
+        } else {
+          // Pause video when it exits the viewport
+          video.pause();
+        }
+      },
+      { threshold: 0.5 } // Video is considered visible when 50% of it is in the viewport
+    );
+
+    observer.observe(video);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [videoRef]);
+
   return (
     <div className="w-full h-[341px] bg-purple-50 shadow hover:shadow-xl border flex flex-col justify-between rounded-lg p-4 transition-all duration-300">
       <div className="flex items-center gap-2">
@@ -132,7 +156,8 @@ const FeedCard = ({ post, refetch }: FeedCardProps) => {
           post.post_images && post.post_images.length === 1
             ? "justify-center" // Single image, center it
             : "gap-x-4" // Multiple images, add horizontal gap
-        }`}>
+        }`}
+      >
         {post.post_images?.map((img, idx) => (
           <img
             key={idx}
@@ -145,9 +170,10 @@ const FeedCard = ({ post, refetch }: FeedCardProps) => {
         ))}
         {post.video_url && (
           <video
+            ref={videoRef}
             src={post.video_url}
-            controls
             className="object-cover w-full rounded-lg shadow-xl h-full"
+            controls={false} // Remove controls to ensure autoplay works smoothly
           />
         )}
       </div>
@@ -156,14 +182,16 @@ const FeedCard = ({ post, refetch }: FeedCardProps) => {
           onClick={toggleLike}
           className={`flex items-center gap-2 font-medium ${
             isLiked ? "text-pink-700" : "text-gray-500"
-          }`}>
+          }`}
+        >
           <FaHeart />
           {post.likes.length}
         </button>
         <div>
           <button
             onClick={handleShareClick}
-            className="font-semibold flex items-center gap-2 bg-gray-200 rounded-full px-4 py-1">
+            className="font-semibold flex items-center gap-2 bg-gray-200 rounded-full px-4 py-1"
+          >
             <RiSendPlaneFill className="text-lg" />
             Share
           </button>

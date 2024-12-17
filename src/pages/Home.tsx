@@ -19,7 +19,6 @@ function Home() {
 
   const pageSize = 20;
 
-  // Function to fetch posts from Supabase
   const fetchPosts = useCallback(async () => {
     if (loading) return;
     setLoading(true);
@@ -28,7 +27,7 @@ function Home() {
       .from("posts")
       .select("*")
       .order("updated_at", { ascending: false })
-      .limit(pageSize); // Limit the posts to pageSize (20)
+      .limit(pageSize);
 
     if (error) {
       console.error("Error fetching posts:", error.message);
@@ -36,7 +35,6 @@ function Home() {
       return;
     }
 
-    // Set the posts when first fetched
     setPosts((prevPosts) => {
       return [...prevPosts, ...(data as PostWithRelations[])];
     });
@@ -44,14 +42,12 @@ function Home() {
     setLoading(false);
   }, [loading]);
 
-  // Initial fetch when the component mounts
   useEffect(() => {
     if (posts.length === 0) {
-      fetchPosts(); // Fetch the initial posts only if no posts exist
+      fetchPosts();
     }
   }, [fetchPosts, posts]);
 
-  // Scroll event handler
   const handleScroll = useCallback(
     (e: React.UIEvent<HTMLDivElement>) => {
       if (!scrollRef.current) return;
@@ -60,7 +56,6 @@ function Home() {
         e.currentTarget.scrollTop + e.currentTarget.clientHeight;
 
       if (bottom && !loading) {
-        // If the scroll reaches the bottom, loop the posts endlessly
         setPosts((prevPosts) => [...prevPosts, ...prevPosts]);
       }
     },

@@ -72,7 +72,6 @@ const EditProfile: React.FC = () => {
       if (error) {
         console.error("Error updating user:", error);
       } else {
-        console.log("User updated successfully");
         store.dispatch(updateUser(user));
       }
     } catch (err) {

@@ -5,7 +5,7 @@ import { RootState } from "../store";
 import FeedCard from "../components/FeedCard";
 import { supabase } from "../supabase";
 import { useEffect, useState, useCallback, useRef } from "react";
-import { PostWithRelations } from "../utils/types";
+import { Post, PostWithRelations } from "../utils/types";
 import { NavLink } from "react-router-dom";
 import { IoMdAdd } from "react-icons/io";
 
@@ -13,7 +13,7 @@ function Home() {
   const { displayName, profilePictureUrl } = useSelector(
     (state: RootState) => state.user
   );
-  const [posts, setPosts] = useState<PostWithRelations[]>([]);
+  const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [hasMore, setHasMore] = useState<boolean>(true);
   const [page, setPage] = useState<number>(1);
@@ -22,29 +22,19 @@ function Home() {
   const fetchPosts = useCallback(
     async (pageNumber: number) => {
       if (loading || !hasMore) return;
-
       setLoading(true);
       const pageSize = 20;
 
       const { data, error } = await supabase
         .from("posts")
-        .select(
-          `
-          *,
-          post_images(*),
-          likes(*)
-        `
-        )
+        .select("*")
         .order("updated_at", { ascending: false })
         .range((pageNumber - 1) * pageSize, pageNumber * pageSize - 1);
 
       if (error) {
         console.error("Error fetching posts:", error.message);
       } else {
-        setPosts((prevPosts) => [
-          ...prevPosts,
-          ...(data as PostWithRelations[]),
-        ]);
+        setPosts([...(data as PostWithRelations[])]);
         if (data && data.length < pageSize) {
           setHasMore(false);
         }
@@ -55,8 +45,9 @@ function Home() {
   );
 
   useEffect(() => {
+    if (posts.length) return;
     fetchPosts(page);
-  }, [fetchPosts, page]);
+  }, [fetchPosts, page, posts]);
 
   const handleScroll = useCallback(
     (e: React.UIEvent<HTMLDivElement>) => {
@@ -98,12 +89,8 @@ function Home() {
         </NavLink>
         <h1 className="font-bold text-2xl">Feeds</h1>
         <div className="space-y-4">
-          {posts.map((post) => (
-            <FeedCard
-              key={post.id}
-              post={post}
-              refetch={() => fetchPosts(page)}
-            />
+          {posts.map((post, index) => (
+            <FeedCard key={`${post}-${index}`} postId={post.id} />
           ))}
         </div>
         {loading && (

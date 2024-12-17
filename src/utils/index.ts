@@ -1,5 +1,5 @@
 import { supabase } from "../supabase";
-import { User } from "./types";
+import { PostWithRelations, User } from "./types";
 const bucketName = import.meta.env.VITE_SUPABASE_BUCKET_NAME;
 
 export async function uploadFile(file: File): Promise<string | null> {
@@ -56,4 +56,23 @@ export async function getUser(id: string) {
   } catch (error) {
     console.error("Error in Fetcing the data", error);
   }
+}
+
+export async function getPost(id: string) {
+  const { data, error } = await supabase
+    .from("posts")
+    .select(
+      `
+          *,
+          post_images(*),
+          likes(*)
+        `
+    )
+    .eq("id", id)
+    .limit(1);
+  if (error) {
+    console.log("Error is fetching posts", error);
+  }
+
+  return data?.[0] as PostWithRelations;
 }

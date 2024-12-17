@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useSelector } from "react-redux";
 import { FaHeart } from "react-icons/fa";
 import { RootState } from "../store";
@@ -6,26 +6,36 @@ import { RiSendPlaneFill } from "react-icons/ri";
 import SharePopup from "./SharePopup";
 import { PostWithRelations, User } from "../utils/types";
 import { supabase } from "../supabase";
-import { getUser } from "../utils";
+import { getPost, getUser } from "../utils";
 
 export interface FeedCardProps {
-  post: PostWithRelations;
-  refetch?: () => void;
+  postId: string;
 }
 
-const FeedCard = ({ post, refetch }: FeedCardProps) => {
+const FeedCard = ({ postId }: FeedCardProps) => {
   const [postUser, setPostUser] = useState<User | undefined>();
+  const [post, setPost] = useState<PostWithRelations | undefined>();
   const { id } = useSelector((state: RootState) => state.user);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [timeAgo, setTimeAgo] = useState("");
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
   useEffect(() => {
+    if (!post?.user_id || postUser) return;
     (async () => {
-      const user = await getUser(post.user_id);
+      const user = await getUser(post?.user_id);
       setPostUser(user);
     })();
-  }, [post.user_id]);
+  }, [post?.user_id, postUser]);
+
+  const fetchPost = useCallback(async () => {
+    setPost(await getPost(postId));
+  }, [postId]);
+
+  useEffect(() => {
+    if (!postId) return;
+    fetchPost();
+  }, [postId, fetchPost]);
 
   const calculateTimeAgo = (timestamp: string) => {
     const now = new Date();
@@ -45,14 +55,15 @@ const FeedCard = ({ post, refetch }: FeedCardProps) => {
   };
 
   useEffect(() => {
-    setTimeAgo(calculateTimeAgo(post.created_at));
+    if (!post?.created_at) return;
+    setTimeAgo(calculateTimeAgo(post?.created_at));
 
     const interval = setInterval(() => {
-      setTimeAgo(calculateTimeAgo(post.created_at));
+      setTimeAgo(calculateTimeAgo(post?.created_at));
     }, 60000);
 
     return () => clearInterval(interval);
-  }, [post.created_at]);
+  }, [post?.created_at]);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -84,7 +95,7 @@ const FeedCard = ({ post, refetch }: FeedCardProps) => {
       const { data: existingLike, error: fetchError } = await supabase
         .from("likes")
         .select("id")
-        .eq("post_id", post.id)
+        .eq("post_id", post?.id)
         .eq("user_id", id)
         .single();
 
@@ -96,7 +107,7 @@ const FeedCard = ({ post, refetch }: FeedCardProps) => {
         const { error: deleteError } = await supabase
           .from("likes")
           .delete()
-          .eq("post_id", post.id)
+          .eq("post_id", post?.id)
           .eq("user_id", id);
 
         if (deleteError) {
@@ -105,14 +116,14 @@ const FeedCard = ({ post, refetch }: FeedCardProps) => {
       } else {
         const { error: insertError } = await supabase
           .from("likes")
-          .insert([{ post_id: post.id, user_id: id }])
+          .insert([{ post_id: post?.id, user_id: id }])
           .single();
 
         if (insertError) {
           throw new Error(insertError.message);
         }
       }
-      refetch?.();
+      fetchPost();
     } catch (error) {
       console.error("Unexpected error in toggleLike:", error);
     }
@@ -141,28 +152,28 @@ const FeedCard = ({ post, refetch }: FeedCardProps) => {
           <small>{timeAgo}</small>
         </div>
       </div>
-      <small className="text-ellipsis line-clamp-3">{post.text}</small>
+      <small className="text-ellipsis line-clamp-3">{post?.text}</small>
       <div
         className={`overflow-x-auto flex w-full h-[167px] ${
-          post.post_images && post.post_images.length === 1
+          post?.post_images && post?.post_images.length === 1
             ? "justify-center"
             : "gap-x-4"
         }`}
       >
-        {post.post_images?.map((img, idx) => (
+        {post?.post_images?.map((img, idx) => (
           <img
             key={idx}
             src={img.image_url ?? undefined}
             alt=""
             className={`${
-              post.post_images.length === 1 ? "w-full" : "w-max"
+              post?.post_images.length === 1 ? "w-full" : "w-max"
             } object-cover rounded-lg`}
           />
         ))}
-        {post.video_url && (
+        {post?.video_url && (
           <video
             ref={videoRef}
-            src={post.video_url}
+            src={post?.video_url}
             className="object-cover w-full rounded-lg shadow-xl h-full"
             controls={false}
           />
@@ -171,14 +182,19 @@ const FeedCard = ({ post, refetch }: FeedCardProps) => {
       <div className="flex items-center justify-between">
         <button
           onClick={toggleLike}
-          className={`flex items-center gap-2 font-medium ${
-            post.likes?.find((user) => user.id === id)
-              ? "text-pink-700"
-              : "text-gray-500"
-          }`}
+          className="flex items-center gap-2 font-medium"
         >
-          <FaHeart />
-          {post.likes.length}
+          <span
+            className={`${
+              post?.likes?.find((user) => user.user_id === id)
+                ? "text-pink-700"
+                : "text-gray-500"
+            }
+            `}
+          >
+            <FaHeart />
+          </span>
+          {post?.likes.length}
         </button>
         <div>
           <button

@@ -6,7 +6,7 @@ import "swiper/swiper-bundle.css";
 interface PostPops {
   post_images: { image_url: string }[];
   text: string;
-  likes: any;
+  likes?: number;
 }
 
 export const PostCard = ({ post_images, text, likes }: PostPops) => {
@@ -36,16 +36,18 @@ export const PostCard = ({ post_images, text, likes }: PostPops) => {
         ))}
       </Swiper>
       {post_images.length > 1 && (
-        <div className="absolute top-3 right-3 bg-black bg-opacity-60 text-white text-xs px-2 py-1 rounded-full">
+        <div className="absolute top-3 right-3 bg-black bg-opacity-60 text-white text-xs px-2 py-1 rounded-full z-10">
           {currentImageIndex + 1}/{post_images.length}
         </div>
       )}
-      <div className="absolute bottom-0 w-full bg-gradient-to-t from-black to-transparent p-4 text-white">
+      <div className="absolute bottom-0 w-full bg-gradient-to-t from-black to-transparent p-4 text-white z-10">
         <h6 className="font-medium text-sm truncate">{text}</h6>
-        <div className="flex items-center gap-1 text-xs mt-1">
-          <FaHeart className="text-red-500" />
-          <span>{likes.length}</span>
-        </div>
+        {likes && (
+          <div className="flex items-center gap-1 text-xs mt-1">
+            <FaHeart className="text-red-500" />
+            <span>{likes}</span>
+          </div>
+        )}
       </div>
     </div>
   );

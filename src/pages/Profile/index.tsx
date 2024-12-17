@@ -86,7 +86,7 @@ const Profile: React.FC = () => {
                 key={idx}
                 post_images={item.post_images}
                 text={item.text ?? "No description"}
-                likes={item.likes}
+                likes={item.likes.length}
               />
             ))}
           </div>

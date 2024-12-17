@@ -3,10 +3,9 @@ import { BackButton } from "../../components/BackButton";
 import { withDefaultLayout } from "../../hoc/withDefaulLayout";
 import { RootState } from "../../store";
 import { useSelector } from "react-redux";
-import BgImg from "../assets/loginUser.jpg";
+import BgImg from "../../assets/loginUser.jpg";
 import { NavLink, useNavigate } from "react-router-dom";
 import { PostCard } from "../../components/PostCard";
-
 import withAuth from "../../hoc/withAuth";
 import { IoMdAdd } from "react-icons/io";
 import { PostWithRelations } from "../../utils/types";

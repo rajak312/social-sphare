@@ -7,7 +7,7 @@ import { useSelector } from "react-redux";
 import { User, updateUser } from "../../store/userSlice";
 import { supabase } from "../../supabase";
 import { uploadFile } from "../../utils";
-import BgImg from "../assets/loginUser.jpg";
+import BgImg from "../../assets/loginUser.jpg";
 import withAuth from "../../hoc/withAuth";
 import { useNavigate } from "react-router-dom";
 

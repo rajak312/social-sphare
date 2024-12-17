@@ -1,14 +1,14 @@
 import React, { FormEvent, useState } from "react";
-import { BackButton } from "../components/BackButton";
-import { withDefaultLayout } from "../hoc/withDefaulLayout";
-import { ProfilePicture } from "../components/ProfilePicture";
-import { RootState, store } from "../store";
+import { BackButton } from "../../components/BackButton";
+import { withDefaultLayout } from "../../hoc/withDefaulLayout";
+import { ProfilePicture } from "../../components/ProfilePicture";
+import { RootState, store } from "../../store";
 import { useSelector } from "react-redux";
-import { User, updateUser } from "../store/userSlice";
-import { supabase } from "../supabase";
-import { uploadFile } from "../utils";
+import { User, updateUser } from "../../store/userSlice";
+import { supabase } from "../../supabase";
+import { uploadFile } from "../../utils";
 import BgImg from "../assets/loginUser.jpg";
-import withAuth from "../hoc/withAuth";
+import withAuth from "../../hoc/withAuth";
 import { useNavigate } from "react-router-dom";
 
 const EditProfile: React.FC = () => {

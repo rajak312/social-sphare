@@ -9,7 +9,7 @@ interface PostPops {
   likes: any;
 }
 
-const MyPostCard = ({ post_images, text, likes }: PostPops) => {
+export const PostCard = ({ post_images, text, likes }: PostPops) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   const handleSlideChange = (swiper: any) => {
@@ -30,7 +30,8 @@ const MyPostCard = ({ post_images, text, likes }: PostPops) => {
         spaceBetween={10}
         slidesPerView={1}
         loop={true}
-        onSlideChange={handleSlideChange}>
+        onSlideChange={handleSlideChange}
+      >
         {post_images.map((item, idx) => (
           <SwiperSlide key={idx}>
             <img
@@ -52,5 +53,3 @@ const MyPostCard = ({ post_images, text, likes }: PostPops) => {
     </div>
   );
 };
-
-export default MyPostCard;

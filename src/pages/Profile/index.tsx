@@ -1,15 +1,16 @@
 import React, { useEffect, useState } from "react";
-import { BackButton } from "../components/BackButton";
-import { withDefaultLayout } from "../hoc/withDefaulLayout";
-import { RootState } from "../store";
+import { BackButton } from "../../components/BackButton";
+import { withDefaultLayout } from "../../hoc/withDefaulLayout";
+import { RootState } from "../../store";
 import { useSelector } from "react-redux";
 import BgImg from "../assets/loginUser.jpg";
 import { NavLink, useNavigate } from "react-router-dom";
-import MyPostCard from "../components/MyPostCard";
-import withAuth from "../hoc/withAuth";
+import { PostCard } from "../../components/PostCard";
+
+import withAuth from "../../hoc/withAuth";
 import { IoMdAdd } from "react-icons/io";
-import { PostWithRelations } from "../utils/types";
-import { supabase } from "../supabase";
+import { PostWithRelations } from "../../utils/types";
+import { supabase } from "../../supabase";
 
 const Profile: React.FC = () => {
   const { profilePictureUrl, displayName, bio, backgroundImage, id } =
@@ -43,7 +44,8 @@ const Profile: React.FC = () => {
     <div className="w-full h-full ">
       <NavLink
         to="/post"
-        className="flex z-50 absolute justify-center items-center bottom-10 ml-72 h-10 w-10 rounded-full bg-black text-white">
+        className="flex z-50 absolute justify-center items-center bottom-10 ml-72 h-10 w-10 rounded-full bg-black text-white"
+      >
         <IoMdAdd className="text-2xl" />
       </NavLink>
       <div className="w-full  relative">
@@ -58,7 +60,8 @@ const Profile: React.FC = () => {
         </div>
         <NavLink
           to="/profile/edit"
-          className="absolute right-10 rounded-full  -bottom-10 border-gray-400 border w-[200px] flex justify-center items-center font-medium">
+          className="absolute right-10 rounded-full  -bottom-10 border-gray-400 border w-[200px] flex justify-center items-center font-medium"
+        >
           Edit Profile
         </NavLink>
         <div className="absolute -bottom-10 left-5">
@@ -80,7 +83,7 @@ const Profile: React.FC = () => {
           <h1 className="font-medium text-xl">My Posts</h1>
           <div className="grid grid-cols-2 gap-4">
             {posts.map((item, idx) => (
-              <MyPostCard
+              <PostCard
                 key={idx}
                 post_images={item.post_images}
                 text={item.text ?? "No description"} // Fallback to "No description" if text is null

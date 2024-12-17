@@ -1,13 +1,13 @@
 import { useSelector } from "react-redux";
-import withAuth from "../hoc/withAuth";
-import { withDefaultLayout } from "../hoc/withDefaulLayout";
-import { RootState } from "../store";
-import FeedCard from "../components/FeedCard";
-import { supabase } from "../supabase";
+import withAuth from "../../hoc/withAuth";
+import { withDefaultLayout } from "../../hoc/withDefaulLayout";
+import { RootState } from "../../store";
+import { supabase } from "../../supabase";
 import { useEffect, useState, useCallback, useRef } from "react";
-import { Post, PostWithRelations } from "../utils/types";
+import { Post, PostWithRelations } from "../../utils/types";
 import { NavLink } from "react-router-dom";
 import { IoMdAdd } from "react-icons/io";
+import { Feed } from "../../components/Feed";
 
 function Home() {
   const { displayName, profilePictureUrl } = useSelector(
@@ -89,7 +89,7 @@ function Home() {
         <h1 className="font-bold text-2xl">Feeds</h1>
         <div className="space-y-4">
           {posts.map((post, index) => (
-            <FeedCard key={`${post.id}-${index}`} postId={post.id} />
+            <Feed key={`${post.id}-${index}`} postId={post.id} />
           ))}
         </div>
         {loading && (

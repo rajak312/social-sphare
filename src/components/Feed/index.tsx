@@ -1,19 +1,19 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useSelector } from "react-redux";
 import { FaHeart } from "react-icons/fa";
-import { RootState } from "../store";
+import { RootState } from "../../store";
 import { RiSendPlaneFill } from "react-icons/ri";
-import SharePopup from "./SharePopup";
-import { PostWithRelations, User } from "../utils/types";
-import { supabase } from "../supabase";
-import { getPost, getUser } from "../utils";
-import { FeedText } from "./FeedText";
+import { SharePopup } from "../SharePopup";
+import { PostWithRelations, User } from "../../utils/types";
+import { supabase } from "../../supabase";
+import { getPost, getUser } from "../../utils";
+import { FeedText } from "../FeedText";
 
 export interface FeedCardProps {
   postId: string;
 }
 
-const FeedCard = ({ postId }: FeedCardProps) => {
+export const Feed = ({ postId }: FeedCardProps) => {
   const [postUser, setPostUser] = useState<User | undefined>();
   const [post, setPost] = useState<PostWithRelations | undefined>();
   const { id } = useSelector((state: RootState) => state.user);
@@ -242,5 +242,3 @@ const FeedCard = ({ postId }: FeedCardProps) => {
     </div>
   );
 };
-
-export default FeedCard;

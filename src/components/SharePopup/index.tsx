@@ -13,7 +13,7 @@ interface SharePopupProps {
   onClose: () => void;
 }
 
-const SharePopup: React.FC<SharePopupProps> = ({ url, onClose }) => {
+export const SharePopup: React.FC<SharePopupProps> = ({ url, onClose }) => {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = () => {
@@ -131,5 +131,3 @@ const SharePopup: React.FC<SharePopupProps> = ({ url, onClose }) => {
     </div>
   );
 };
-
-export default SharePopup;

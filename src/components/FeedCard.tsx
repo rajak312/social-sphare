@@ -7,6 +7,7 @@ import SharePopup from "./SharePopup";
 import { PostWithRelations, User } from "../utils/types";
 import { supabase } from "../supabase";
 import { getPost, getUser } from "../utils";
+import { FeedText } from "./FeedText";
 
 export interface FeedCardProps {
   postId: string;
@@ -20,10 +21,8 @@ const FeedCard = ({ postId }: FeedCardProps) => {
   const [timeAgo, setTimeAgo] = useState("");
   const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
   const [currentVideoUrl, setCurrentVideoUrl] = useState<string | null>(null);
-  const [isTextExpanded, setIsTextExpanded] = useState(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
-  // Fetch user and post information
   useEffect(() => {
     if (!post?.user_id || postUser) return;
     (async () => {
@@ -41,7 +40,6 @@ const FeedCard = ({ postId }: FeedCardProps) => {
     fetchPost();
   }, [postId, fetchPost]);
 
-  // Calculate the time ago for the post
   const calculateTimeAgo = (timestamp: string) => {
     const now = new Date();
     const postTime = new Date(timestamp);
@@ -70,7 +68,6 @@ const FeedCard = ({ postId }: FeedCardProps) => {
     return () => clearInterval(interval);
   }, [post?.created_at]);
 
-  // IntersectionObserver to handle video autoplay and pause
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
@@ -97,7 +94,6 @@ const FeedCard = ({ postId }: FeedCardProps) => {
     };
   }, [videoRef]);
 
-  // Like toggle functionality
   const toggleLike = async () => {
     try {
       const { data: existingLike, error: fetchError } = await supabase
@@ -137,7 +133,6 @@ const FeedCard = ({ postId }: FeedCardProps) => {
     }
   };
 
-  // Share functionality
   const handleShareClick = () => {
     setIsModalOpen(true);
   };
@@ -146,7 +141,6 @@ const FeedCard = ({ postId }: FeedCardProps) => {
     setIsModalOpen(false);
   };
 
-  // Open video modal for fullscreen video playback
   const openVideoModal = (videoUrl: string) => {
     setCurrentVideoUrl(videoUrl);
     setIsVideoModalOpen(true);
@@ -155,26 +149,6 @@ const FeedCard = ({ postId }: FeedCardProps) => {
   const closeVideoModal = () => {
     setIsVideoModalOpen(false);
     setCurrentVideoUrl(null);
-  };
-
-  // Function to handle Show More/Show Less
-  const handleShowMoreClick = () => {
-    setIsTextExpanded(!isTextExpanded);
-  };
-
-  // Function to format text with hashtag color
-  const formatTextWithHashtags = (text: string) => {
-    const regex = /#(\w+)/g;
-    return text.split(regex).map((part, index) => {
-      if (index % 2 === 1) {
-        return (
-          <span key={index} className="text-blue-500">
-            #{part}
-          </span>
-        );
-      }
-      return part;
-    });
   };
 
   const url = window.location.href;
@@ -192,39 +166,9 @@ const FeedCard = ({ postId }: FeedCardProps) => {
           <small>{timeAgo}</small>
         </div>
       </div>
-
-      {/* Text and Show More button in the same row */}
-      <div className="flex flex-col gap-2">
-        <div className="flex items-center space-x-2">
-          <small
-            className={`text-ellipsis flex-1 ${
-              isTextExpanded ? "overflow-visible" : "overflow-hidden"
-            }`}
-            style={{ maxHeight: isTextExpanded ? "none" : "60px" }} // Adjust max height based on expanded/collapsed state
-          >
-            {post?.text && (
-              <span>
-                {formatTextWithHashtags(
-                  post.text.slice(0, isTextExpanded ? undefined : 100)
-                )}
-              </span>
-            )}
-          </small>
-
-          {/* Show More Button */}
-          {post?.text && post.text.length > 100 && (
-            <button
-              onClick={handleShowMoreClick}
-              className="text-blue-500 font-semibold"
-            >
-              {isTextExpanded ? "Show Less" : "Show More"}
-            </button>
-          )}
-        </div>
-      </div>
-
+      <FeedText text={post?.text || ""} />
       <div
-        className={`overflow-x-auto flex w-full h-[167px] ${
+        className={`overflow-x-auto flex w-full h-[167px] mb-4 ${
           post?.post_images && post?.post_images.length === 1
             ? "justify-center"
             : "gap-x-4"

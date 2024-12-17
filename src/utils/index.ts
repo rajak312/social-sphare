@@ -71,7 +71,7 @@ export async function getPost(id: string) {
     .eq("id", id)
     .limit(1);
   if (error) {
-    console.log("Error is fetching posts", error);
+    console.error("Error is fetching posts", error);
   }
 
   return data?.[0] as PostWithRelations;

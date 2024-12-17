@@ -7,10 +7,10 @@ export const GoogleLogin = () => {
     try {
       const provider = new GoogleAuthProvider();
       const auth = getAuth(app);
-      const result = await signInWithPopup(auth, provider);
-      console.log("results", result);
+      await signInWithPopup(auth, provider);
+      console.info("Successfully login with google Provider");
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   };
 
@@ -18,7 +18,8 @@ export const GoogleLogin = () => {
     <button
       type="button"
       onClick={handleGoogleClick}
-      className="border flex items-center gap-2 bg-gray-900 text-white w-max p-4 h-[50px]  rounded-full ">
+      className="border flex items-center gap-2 bg-gray-900 text-white w-max p-4 h-[50px]  rounded-full "
+    >
       <img src={GoogleIcon} alt="google_icon" width={25} height={25} />
       <p className="text-xl">Continue with Google</p>
     </button>

@@ -16,6 +16,22 @@ export const FeedText = ({ text }: { text: string }) => {
     setIsTextExpanded((prev) => !prev);
   };
 
+  const renderTextWithHashtags = (text: string) => {
+    const regex = /(#\w+)/g;
+    const parts = text.split(regex);
+
+    return parts.map((part, index) => {
+      if (part.match(regex)) {
+        return (
+          <span key={index} className="text-blue-500">
+            {part}
+          </span>
+        );
+      }
+      return part;
+    });
+  };
+
   return (
     <div className="mt-4 mb-4">
       <p
@@ -25,7 +41,7 @@ export const FeedText = ({ text }: { text: string }) => {
         }`}
         style={{ whiteSpace: "normal", textOverflow: "ellipsis" }}
       >
-        {text}
+        {renderTextWithHashtags(text)}
       </p>
       {isOverflowing && (
         <button

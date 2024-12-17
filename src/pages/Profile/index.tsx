@@ -85,7 +85,7 @@ const Profile: React.FC = () => {
               <PostCard
                 key={idx}
                 post_images={item.post_images}
-                text={item.text ?? "No description"} // Fallback to "No description" if text is null
+                text={item.text ?? "No description"}
                 likes={item.likes}
               />
             ))}

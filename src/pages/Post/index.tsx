@@ -150,7 +150,7 @@ const Post: FC = () => {
           </div>
           <button
             onClick={handleDeleteCurrentImage}
-            className="absolute bottom-2 right-2"
+            className="absolute bottom-2 right-2 text-red-500"
           >
             <img src={Bin} alt="Delete" />
           </button>
@@ -185,7 +185,7 @@ const Post: FC = () => {
           />
           <button
             onClick={handleDeleteVideo}
-            className="absolute bottom-2 right-2"
+            className="absolute bottom-2 right-2 text-red-500"
           >
             <img src={Bin} alt="Delete" />
           </button>
@@ -242,51 +242,48 @@ const Post: FC = () => {
     );
 
   return (
-    <div className="bg-white p-4 h-full">
-      <div className="h-[80%]">
+    <div className="bg-white p-4 h-full flex flex-col">
+      <div className="flex-grow">
         <BackButton onBack={handleBack} title="New Post" />
-        <div className="flex flex-col p-6 justify-between h-full">
-          <div className="flex flex-col gap-4">
-            {renderMediaPreview()}
-            {images.length > 0 && (
-              <div className="flex items-center">
-                <label className="flex items-center gap-2 text-gray-700 cursor-pointer">
-                  <img src={Gallary} alt="Add Gallery" />
-                  <span className="font-bold">Add more Photos</span>
-                  <input
-                    type="file"
-                    multiple
-                    className="hidden"
-                    onChange={handleAddImages}
-                    accept="image/*"
-                  />
-                </label>
-              </div>
-            )}
-            <textarea
-              placeholder="Surrounded by nature’s beauty, finding peace in every leaf, breeze, and sunset. 🌿🌍 #NatureVibes #OutdoorEscape #EarthLover"
-              className="w-full h-32 rounded resize-none p-2 border border-gray-300"
-              value={caption}
-              onChange={(e: ChangeEvent<HTMLTextAreaElement>) =>
-                setCaption(e.target.value)
-              }
-            />
-            {renderOptions()}
-          </div>
-          <button
-            className={`bg-black w-full p-2 rounded-full text-white font-semibold flex items-center justify-center ${
-              isLoading ? "opacity-50 cursor-not-allowed" : ""
-            }`}
-            onClick={handleCreatePost}
-            disabled={
-              isLoading ||
-              (caption.trim() === "" && images.length === 0 && !video)
+        <div className="flex flex-col gap-6 p-6">
+          {renderMediaPreview()}
+          {images.length > 0 && (
+            <div className="flex items-center">
+              <label className="flex items-center gap-2 text-gray-700 cursor-pointer">
+                <img src={Gallary} alt="Add Gallery" />
+                <span className="font-bold">Add more Photos</span>
+                <input
+                  type="file"
+                  multiple
+                  className="hidden"
+                  onChange={handleAddImages}
+                  accept="image/*"
+                />
+              </label>
+            </div>
+          )}
+          <textarea
+            placeholder="Wha's on your mind ?"
+            className="w-full h-64 rounded-lg resize-none p-4 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300"
+            value={caption}
+            onChange={(e: ChangeEvent<HTMLTextAreaElement>) =>
+              setCaption(e.target.value)
             }
-          >
-            {isLoading ? "Creating..." : "CREATE"}
-          </button>
+          />
+          {renderOptions()}
         </div>
       </div>
+      <button
+        className={`bg-black p-3 rounded-full text-white font-semibold w-full ${
+          isLoading ? "opacity-50 cursor-not-allowed" : ""
+        }`}
+        onClick={handleCreatePost}
+        disabled={
+          isLoading || (caption.trim() === "" && images.length === 0 && !video)
+        }
+      >
+        {isLoading ? "Creating..." : "CREATE"}
+      </button>
     </div>
   );
 };

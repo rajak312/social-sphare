@@ -18,8 +18,12 @@ const FeedCard = ({ postId }: FeedCardProps) => {
   const { id } = useSelector((state: RootState) => state.user);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [timeAgo, setTimeAgo] = useState("");
+  const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
+  const [currentVideoUrl, setCurrentVideoUrl] = useState<string | null>(null);
+  const [isTextExpanded, setIsTextExpanded] = useState(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
+  // Fetch user and post information
   useEffect(() => {
     if (!post?.user_id || postUser) return;
     (async () => {
@@ -37,6 +41,7 @@ const FeedCard = ({ postId }: FeedCardProps) => {
     fetchPost();
   }, [postId, fetchPost]);
 
+  // Calculate the time ago for the post
   const calculateTimeAgo = (timestamp: string) => {
     const now = new Date();
     const postTime = new Date(timestamp);
@@ -65,9 +70,9 @@ const FeedCard = ({ postId }: FeedCardProps) => {
     return () => clearInterval(interval);
   }, [post?.created_at]);
 
+  // IntersectionObserver to handle video autoplay and pause
   useEffect(() => {
     const video = videoRef.current;
-
     if (!video) return;
 
     video.muted = true;
@@ -75,7 +80,9 @@ const FeedCard = ({ postId }: FeedCardProps) => {
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          video.play().catch(() => {});
+          video.play().catch((error) => {
+            console.error("Error playing video:", error);
+          });
         } else {
           video.pause();
         }
@@ -90,6 +97,7 @@ const FeedCard = ({ postId }: FeedCardProps) => {
     };
   }, [videoRef]);
 
+  // Like toggle functionality
   const toggleLike = async () => {
     try {
       const { data: existingLike, error: fetchError } = await supabase
@@ -129,6 +137,7 @@ const FeedCard = ({ postId }: FeedCardProps) => {
     }
   };
 
+  // Share functionality
   const handleShareClick = () => {
     setIsModalOpen(true);
   };
@@ -137,10 +146,41 @@ const FeedCard = ({ postId }: FeedCardProps) => {
     setIsModalOpen(false);
   };
 
+  // Open video modal for fullscreen video playback
+  const openVideoModal = (videoUrl: string) => {
+    setCurrentVideoUrl(videoUrl);
+    setIsVideoModalOpen(true);
+  };
+
+  const closeVideoModal = () => {
+    setIsVideoModalOpen(false);
+    setCurrentVideoUrl(null);
+  };
+
+  // Function to handle Show More/Show Less
+  const handleShowMoreClick = () => {
+    setIsTextExpanded(!isTextExpanded);
+  };
+
+  // Function to format text with hashtag color
+  const formatTextWithHashtags = (text: string) => {
+    const regex = /#(\w+)/g;
+    return text.split(regex).map((part, index) => {
+      if (index % 2 === 1) {
+        return (
+          <span key={index} className="text-blue-500">
+            #{part}
+          </span>
+        );
+      }
+      return part;
+    });
+  };
+
   const url = window.location.href;
 
   return (
-    <div className="w-full h-[341px] bg-purple-50 shadow hover:shadow-xl border flex flex-col justify-between rounded-lg p-4 transition-all duration-300">
+    <div className="w-full h-auto bg-purple-50 shadow hover:shadow-xl border flex flex-col justify-between rounded-lg p-4 transition-all duration-300">
       <div className="flex items-center gap-2">
         <img
           src={postUser?.profile_picture_url ?? undefined}
@@ -152,7 +192,37 @@ const FeedCard = ({ postId }: FeedCardProps) => {
           <small>{timeAgo}</small>
         </div>
       </div>
-      <small className="text-ellipsis line-clamp-3">{post?.text}</small>
+
+      {/* Text and Show More button in the same row */}
+      <div className="flex flex-col gap-2">
+        <div className="flex items-center space-x-2">
+          <small
+            className={`text-ellipsis flex-1 ${
+              isTextExpanded ? "overflow-visible" : "overflow-hidden"
+            }`}
+            style={{ maxHeight: isTextExpanded ? "none" : "60px" }} // Adjust max height based on expanded/collapsed state
+          >
+            {post?.text && (
+              <span>
+                {formatTextWithHashtags(
+                  post.text.slice(0, isTextExpanded ? undefined : 100)
+                )}
+              </span>
+            )}
+          </small>
+
+          {/* Show More Button */}
+          {post?.text && post.text.length > 100 && (
+            <button
+              onClick={handleShowMoreClick}
+              className="text-blue-500 font-semibold"
+            >
+              {isTextExpanded ? "Show Less" : "Show More"}
+            </button>
+          )}
+        </div>
+      </div>
+
       <div
         className={`overflow-x-auto flex w-full h-[167px] ${
           post?.post_images && post?.post_images.length === 1
@@ -176,9 +246,11 @@ const FeedCard = ({ postId }: FeedCardProps) => {
             src={post?.video_url}
             className="object-cover w-full rounded-lg shadow-xl h-full"
             controls={false}
+            onClick={() => openVideoModal(post.video_url as string)}
           />
         )}
       </div>
+
       <div className="flex items-center justify-between">
         <button
           onClick={toggleLike}
@@ -208,6 +280,21 @@ const FeedCard = ({ postId }: FeedCardProps) => {
       </div>
 
       {isModalOpen && <SharePopup url={url} onClose={handleCloseModal} />}
+
+      {/* Video Modal */}
+      {isVideoModalOpen && currentVideoUrl && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50"
+          onClick={closeVideoModal}
+        >
+          <video
+            src={currentVideoUrl}
+            className="max-w-4xl max-h-[80vh] object-cover"
+            controls
+            autoPlay
+          />
+        </div>
+      )}
     </div>
   );
 };

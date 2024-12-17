@@ -77,7 +77,7 @@ const EditProfile: React.FC = () => {
     } catch (err) {
       console.error("Error in handleSave:", err);
     } finally {
-      setIsUpdating(false); // End updating
+      setIsUpdating(false);
     }
   };
 
@@ -94,7 +94,7 @@ const EditProfile: React.FC = () => {
   };
 
   return (
-    <div className="w-full h-full bg-white">
+    <div className="w-full h-full bg-white flex flex-col">
       <div className="w-full relative">
         <img
           src={user.backgroundImage || BgImg}
@@ -119,9 +119,9 @@ const EditProfile: React.FC = () => {
 
       <form
         onSubmit={handleSave}
-        className="h-[75%] flex flex-col justify-between p-6"
+        className="flex flex-col justify-between flex-grow p-6 w-full"
       >
-        <div className="my-10 space-y-4">
+        <div className="my-10 space-y-4 flex-grow w-full">
           <div className="w-full flex gap-2 flex-col">
             <label htmlFor="name">Name</label>
             <input
@@ -129,8 +129,8 @@ const EditProfile: React.FC = () => {
               type="text"
               value={user.displayName || ""}
               onChange={handleNameChange}
-              className="bg-transparent border-b-[1px] focus:outline-none"
-              disabled={isUpdating} // Optional: Disable inputs while updating
+              className="bg-transparent border-b-[1px] focus:outline-none w-full"
+              disabled={isUpdating}
             />
           </div>
           <div className="w-full flex gap-2 flex-col">
@@ -139,21 +139,23 @@ const EditProfile: React.FC = () => {
               id="bio"
               value={user.bio || ""}
               onChange={handleBioChange}
-              className="bg-transparent border-b-[1px] overflow-hidden focus:outline-none"
+              className="bg-transparent border-b-[1px] overflow-hidden focus:outline-none w-full min-h-[6rem]"
               disabled={isUpdating}
             />
           </div>
         </div>
 
-        <button
-          type="submit"
-          className={`bg-black text-white p-2 rounded-full font-semibold ${
-            isUpdating ? "opacity-50 cursor-not-allowed" : ""
-          }`}
-          disabled={isUpdating}
-        >
-          {isUpdating ? "Updating..." : "SAVE"}
-        </button>
+        <div className="mt-auto w-full">
+          <button
+            type="submit"
+            className={`bg-black text-white p-2 rounded-full font-semibold w-full ${
+              isUpdating ? "opacity-50 cursor-not-allowed" : ""
+            }`}
+            disabled={isUpdating}
+          >
+            {isUpdating ? "Updating..." : "SAVE"}
+          </button>
+        </div>
       </form>
     </div>
   );

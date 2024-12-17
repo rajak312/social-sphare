@@ -17,20 +17,13 @@ export const PostCard = ({ post_images, text, likes }: PostPops) => {
   };
 
   return (
-    <div className="w-full h-full min-h-max max-h-min bg-white border shadow-xl overflow-hidden rounded-xl relative">
-      {post_images.length > 1 && ( // Only show the count if there are multiple images
-        <div className="absolute z-50 top-4 right-0 transform -translate-x-1/2 text-white font-bold bg-black bg-opacity-50 px-2 rounded-md">
-          <small>
-            {currentImageIndex + 1} / {post_images.length}
-          </small>
-        </div>
-      )}
-
+    <div className="relative w-full rounded-md overflow-hidden shadow-md bg-white">
       <Swiper
-        spaceBetween={10}
+        spaceBetween={0}
         slidesPerView={1}
         loop={true}
         onSlideChange={handleSlideChange}
+        className="w-full h-[240px] sm:h-[300px] md:h-[350px] object-cover"
       >
         {post_images.map((item, idx) => (
           <SwiperSlide key={idx}>
@@ -42,12 +35,16 @@ export const PostCard = ({ post_images, text, likes }: PostPops) => {
           </SwiperSlide>
         ))}
       </Swiper>
-
-      <div className="absolute z-50 bottom-4 left-2">
-        <h6 className="text-white font-bold">{text}</h6>
-        <div className="flex text-gray-500 font-medium items-center gap-2">
-          <FaHeart />
-          {likes.length}
+      {post_images.length > 1 && (
+        <div className="absolute top-3 right-3 bg-black bg-opacity-60 text-white text-xs px-2 py-1 rounded-full">
+          {currentImageIndex + 1}/{post_images.length}
+        </div>
+      )}
+      <div className="absolute bottom-0 w-full bg-gradient-to-t from-black to-transparent p-4 text-white">
+        <h6 className="font-medium text-sm truncate">{text}</h6>
+        <div className="flex items-center gap-1 text-xs mt-1">
+          <FaHeart className="text-red-500" />
+          <span>{likes.length}</span>
         </div>
       </div>
     </div>

@@ -15,40 +15,43 @@ function Home() {
   );
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
-  const [hasMore, setHasMore] = useState<boolean>(true);
-  const [page, setPage] = useState<number>(1);
   const scrollRef = useRef<HTMLDivElement | null>(null);
 
-  const fetchPosts = useCallback(
-    async (pageNumber: number) => {
-      if (loading || !hasMore) return;
-      setLoading(true);
-      const pageSize = 20;
+  const pageSize = 20;
 
-      const { data, error } = await supabase
-        .from("posts")
-        .select("*")
-        .order("updated_at", { ascending: false })
-        .range((pageNumber - 1) * pageSize, pageNumber * pageSize - 1);
+  // Function to fetch posts from Supabase
+  const fetchPosts = useCallback(async () => {
+    if (loading) return;
+    setLoading(true);
 
-      if (error) {
-        console.error("Error fetching posts:", error.message);
-      } else {
-        setPosts([...(data as PostWithRelations[])]);
-        if (data && data.length < pageSize) {
-          setHasMore(false);
-        }
-      }
+    const { data, error } = await supabase
+      .from("posts")
+      .select("*")
+      .order("updated_at", { ascending: false })
+      .limit(pageSize); // Limit the posts to pageSize (20)
+
+    if (error) {
+      console.error("Error fetching posts:", error.message);
       setLoading(false);
-    },
-    [loading, hasMore]
-  );
+      return;
+    }
 
+    // Set the posts when first fetched
+    setPosts((prevPosts) => {
+      return [...prevPosts, ...(data as PostWithRelations[])];
+    });
+
+    setLoading(false);
+  }, [loading]);
+
+  // Initial fetch when the component mounts
   useEffect(() => {
-    if (posts.length) return;
-    fetchPosts(page);
-  }, [fetchPosts, page, posts]);
+    if (posts.length === 0) {
+      fetchPosts(); // Fetch the initial posts only if no posts exist
+    }
+  }, [fetchPosts, posts]);
 
+  // Scroll event handler
   const handleScroll = useCallback(
     (e: React.UIEvent<HTMLDivElement>) => {
       if (!scrollRef.current) return;
@@ -56,11 +59,12 @@ function Home() {
         e.currentTarget.scrollHeight ===
         e.currentTarget.scrollTop + e.currentTarget.clientHeight;
 
-      if (bottom && hasMore && !loading) {
-        setPage((prevPage) => prevPage + 1);
+      if (bottom && !loading) {
+        // If the scroll reaches the bottom, loop the posts endlessly
+        setPosts((prevPosts) => [...prevPosts, ...prevPosts]);
       }
     },
-    [hasMore, loading]
+    [loading]
   );
 
   return (
@@ -90,14 +94,11 @@ function Home() {
         <h1 className="font-bold text-2xl">Feeds</h1>
         <div className="space-y-4">
           {posts.map((post, index) => (
-            <FeedCard key={`${post}-${index}`} postId={post.id} />
+            <FeedCard key={`${post.id}-${index}`} postId={post.id} />
           ))}
         </div>
         {loading && (
           <div className="text-center py-4">Loading more posts...</div>
-        )}
-        {!hasMore && !loading && (
-          <div className="text-center py-4">No more posts to load.</div>
         )}
       </div>
     </div>

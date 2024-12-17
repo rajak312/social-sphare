@@ -10,6 +10,7 @@ import { supabase } from "../../supabase";
 import { useSelector } from "react-redux";
 import { RootState } from "../../store";
 import { uploadFile } from "../../utils";
+import withAuth from "../../hoc/withAuth";
 
 const Post: FC = () => {
   const [images, setImages] = useState<{ file: File; preview: string }[]>([]);
@@ -290,4 +291,4 @@ const Post: FC = () => {
   );
 };
 
-export default withDefaultLayout(Post);
+export default withAuth(withDefaultLayout(Post));

@@ -85,6 +85,7 @@ const Profile: React.FC = () => {
               <PostCard
                 key={idx}
                 post_images={item.post_images}
+                videoUrl={item.video_url}
                 text={item.text ?? "No description"}
                 likes={item.likes.length}
               />

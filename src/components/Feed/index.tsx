@@ -189,7 +189,9 @@ export const Feed = ({ postId }: FeedCardProps) => {
             ref={videoRef}
             src={post?.video_url}
             className="object-cover w-full rounded-lg shadow-xl h-full"
-            controls={false}
+            autoPlay
+            playsInline
+            muted
             onClick={() => openVideoModal(post.video_url as string)}
           />
         )}
